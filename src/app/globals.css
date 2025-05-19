@@ -1,33 +1,16 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+html {
+  background-color: white;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
+  color: white;
+  font-weight: 300;
+  height: 100%;
   margin: 0;
+  overscroll-behavior: none;
+  padding: 0;
+  width: 100%;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
@@ -35,8 +18,75 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+* {
+  box-sizing: border-box;
+  --scrollbar-color-thumb: rgba(255, 255, 255, 0.60);
+  --scrollbar-color-track: transparent;
+  --scrollbar-width: thin;
+  --scrollbar-width-legacy: 5px;
+}
+
+:root {
+  --animate-bouncing-min: 0.9;
+  --animate-bouncing-max: 1.1;
+  --animate-freshing-min: 1;
+  --animate-freshing-max: 1.2;
+  --animate-jumping-min: 0;
+  --animate-jumping-max: -5px;
+}
+
+@keyframes bouncing {
+  0% {
+    transform: scale(var(--animate-bouncing-min));
+  }
+  50% {
+    transform: scale(var(--animate-bouncing-max));
+  }
+  100% {
+    transform: scale(var(--animate-bouncing-min));
+  }
+}
+
+@keyframes freshing {
+  0% {
+    filter: brightness(var(--animate-freshing-min));
+  }
+  50% {
+    filter: brightness(var(--animate-freshing-max));
+  }
+  100% {
+    filter: brightness(var(--animate-freshing-min));
+  }
+}
+
+@keyframes jumping {
+  0% {
+    transform: translateY(var(--animate-jumping-min));
+  }
+  50% {
+    transform: translateY(var(--animate-jumping-max));
+  }
+  100% {
+    transform: translateY(var(--animate-jumping-min));
+  }
+}
+
+@supports (scrollbar-width: auto) {
+  * {
+    scrollbar-color: var(--scrollbar-color-thumb) var(--scrollbar-color-track);
+    scrollbar-width: var(--scrollbar-width);
+  }
+}
+
+@supports selector(::-webkit-scrollbar) {
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-color-thumb);
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-color-track);
+  }
+  ::-webkit-scrollbar {
+    max-width: var(--scrollbar-width-legacy);
+    max-height: var(--scrollbar-width-legacy);
   }
 }
