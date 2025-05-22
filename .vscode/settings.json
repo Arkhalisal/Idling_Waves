@@ -1,6 +1,25 @@
 {
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "always"
-    }
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "eslint.validate": [
+    "*.json",
+    "json",
+    "json5",
+    "jsonc",
+    "typescript",
+    "typescriptreact"
+  ],
+  "peacock.affectActivityBar": false,
+  "peacock.affectTitleBar": false,
+  "peacock.color": "#00C0FF",
+  "workbench.colorCustomizations": {
+    "sash.hoverBorder": "#33cdff",
+    "statusBar.background": "#00c0ff",
+    "statusBar.foreground": "#15202b",
+    "statusBarItem.hoverBackground": "#009acc",
+    "statusBarItem.remoteBackground": "#00c0ff",
+    "statusBarItem.remoteForeground": "#15202b"
+  }
 }
