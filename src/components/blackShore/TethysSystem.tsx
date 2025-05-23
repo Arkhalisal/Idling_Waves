@@ -1,3 +1,5 @@
+'use client'
+
 import { Box, Button, styled, Typography } from '@mui/material'
 import * as RA from 'ramda-adjunct'
 
@@ -38,24 +40,25 @@ const EnergyCondenserAmount = styled(Typography)``
 const EnergyCondenserUpgrade = styled(Button)``
 
 const TethysSystem = () => {
-  const { energyCondensers, buyEnergyCondenser } = useEnergyCondenserContext()
+  const { energy, energyCondensers, buyEnergyCondenser } = useEnergyCondenserContext()
 
   return (
     <MainContainer>
       <SectionTitle>Tethys System</SectionTitle>
 
-      <CurrentEnergy>{''}</CurrentEnergy>
+      <CurrentEnergy>{energy.toFixed(1)}</CurrentEnergy>
 
       <EnergyCondenserContainer>
-        {RA.mapIndexed(item => {
+        {RA.mapIndexed((item, index) => {
+          if (!item.unlocked) return null
+
           return (
             <EnergyCondensers key={item.name}>
               <EnergyCondenserTitle>{item.name}</EnergyCondenserTitle>
-              <EnergyCondenserAmount>{item.amount}</EnergyCondenserAmount>
-              <EnergyCondenserUpgrade
-                onClick={() => buyEnergyCondenser(item.name)}
-              >
-                Buy
+              <EnergyCondenserAmount>mult: {item.multiplier.toFixed(0)}</EnergyCondenserAmount>
+              <EnergyCondenserAmount>{item.amount.toFixed(0)}</EnergyCondenserAmount>
+              <EnergyCondenserUpgrade onClick={() => buyEnergyCondenser(index)}>
+                Buy {item.cost.toFixed(0)}
               </EnergyCondenserUpgrade>
             </EnergyCondensers>
           )

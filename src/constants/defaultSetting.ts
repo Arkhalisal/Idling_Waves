@@ -1,0 +1,3 @@
+export const DEFAULT_TICK_SPEED = 33
+
+export const DEFAULT_TICK_SPEED_MS = 1000 / DEFAULT_TICK_SPEED

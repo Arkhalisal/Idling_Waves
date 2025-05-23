@@ -7,16 +7,14 @@ import NavigationMenu from '@/constants/menu'
 import { DefaultNavbarId } from '@/constants/navbar'
 import { createStrictContext } from '@/util/context/createStrictContext'
 
-const [ContextProvider, useNavbarContext] =
-  createStrictContext<NavbarContextType>('Navbar')
+const [ContextProvider, useNavbarContext] = createStrictContext<NavbarContextType>('Navbar')
 
 export { useNavbarContext }
 
 const NavbarProvider = ({ children }: NavbarProviderProps) => {
   const [CurrentTab, setCurrentTab] = useState(DefaultNavbarId)
 
-  const [CurrentSecondNavbar, setCurrentSecondNavbar] =
-    useState(DefaultNavbarId)
+  const [CurrentSecondNavbar, setCurrentSecondNavbar] = useState(DefaultNavbarId)
 
   const handleNavbarCycle = useCallback(
     (tab: number) => {
@@ -41,23 +39,16 @@ const NavbarProvider = ({ children }: NavbarProviderProps) => {
     [CurrentSecondNavbar, CurrentTab]
   )
 
-  const handleNavbarChange = useCallback(
-    (event: React.SyntheticEvent, newValue: number) => {
-      setCurrentTab(newValue)
-      setCurrentSecondNavbar(newValue)
-    },
-    []
-  )
+  const handleNavbarChange = useCallback((event: React.SyntheticEvent, newValue: number) => {
+    setCurrentTab(newValue)
+    setCurrentSecondNavbar(newValue)
+  }, [])
 
   const handleSecondNavbarChange = useCallback(
     (event: React.SyntheticEvent, newValue: number) => {
-      const currentMenu = NavigationMenu.find(menu =>
-        menu.allValues.includes(CurrentTab)
-      )
+      const currentMenu = NavigationMenu.find(menu => menu.allValues.includes(CurrentTab))
 
-      const selectMenu = NavigationMenu.find(menu =>
-        menu.allValues.includes(newValue)
-      )
+      const selectMenu = NavigationMenu.find(menu => menu.allValues.includes(newValue))
 
       if (currentMenu && selectMenu) {
         if (currentMenu.value !== selectMenu.value) {
@@ -94,10 +85,7 @@ type NavbarContextType = {
   CurrentSecondNavbar: number
   handleNavbarCycle: (tab: number) => void
   handleNavbarChange: (event: React.SyntheticEvent, newValue: number) => void
-  handleSecondNavbarChange: (
-    event: React.SyntheticEvent,
-    newValue: number
-  ) => void
+  handleSecondNavbarChange: (event: React.SyntheticEvent, newValue: number) => void
 }
 
 export default NavbarProvider

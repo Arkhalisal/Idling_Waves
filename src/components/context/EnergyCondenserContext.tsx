@@ -1,6 +1,10 @@
-import { useState } from 'react'
+'use client'
 
-import { EnergyCondenser } from '@/constants/energy'
+import Decimal from 'break_infinity.js'
+import { useCallback, useEffect, useState } from 'react'
+
+import { DEFAULT_TICK_SPEED, DEFAULT_TICK_SPEED_MS } from '@/constants/defaultSetting'
+import { EnergyCondenser, initialEnergyCondensers } from '@/constants/energyCondenser'
 import { createStrictContext } from '@/util/context/createStrictContext'
 
 const [ContextProvider, useEnergyCondenserContext] =
@@ -9,48 +13,88 @@ const [ContextProvider, useEnergyCondenserContext] =
 export { useEnergyCondenserContext }
 
 const EnergyCondenserProvider = ({ children }: EnergyProviderProps) => {
-  const [energyCondensers, setEnergyCondensers] = useState<
-    EnergyCondenserType[]
-  >([
-    { name: EnergyCondenser.ONE, amount: 0, purchase: 0 },
-    { name: EnergyCondenser.TWO, amount: 0, purchase: 0 },
-    { name: EnergyCondenser.THREE, amount: 0, purchase: 0 },
-    { name: EnergyCondenser.FOUR, amount: 0, purchase: 0 }
-  ])
+  const [energy, setEnergy] = useState<Decimal>(new Decimal(10))
+  const [energyCondensers, setEnergyCondensers] =
+    useState<EnergyCondenser[]>(initialEnergyCondensers)
 
-  const buyEnergyCondenser = (name: EnergyCondenser) => {
-    setEnergyCondensers(prevState =>
-      prevState.map(item => {
-        if (item.name === name) {
-          return {
-            ...item,
-            purchase: item.purchase + 1,
-            amount: item.amount + 1
+  useEffect(() => {
+    const gameLoop = setInterval(() => {
+      setEnergyCondensers(prev => {
+        const newEnergyCondensers = [...prev]
+        for (let i = newEnergyCondensers.length - 1; i >= 0; i--) {
+          const condenser = newEnergyCondensers[i]
+          const finalProduction = condenser.amount
+            .times(condenser.production)
+            .times(condenser.multiplier)
+            .dividedBy(DEFAULT_TICK_SPEED_MS)
+          if (i === 0) {
+            setEnergy(prevEnergy => prevEnergy.plus(finalProduction))
+          } else {
+            newEnergyCondensers[i - 1].amount =
+              newEnergyCondensers[i - 1].amount.plus(finalProduction)
           }
         }
-        return item
+        return newEnergyCondensers
       })
-    )
-  }
+    }, DEFAULT_TICK_SPEED)
 
-  const buy10EnergyCondenser = (name: EnergyCondenser) => {
-    setEnergyCondensers(prevState =>
-      prevState.map(item => {
-        if (item.name === name) {
-          return {
-            ...item,
-            purchase: item.purchase + 10,
-            amount: item.amount + 10
+    return () => clearInterval(gameLoop)
+  }, [])
+
+  const buyEnergyCondenser = useCallback(
+    (index: number) => {
+      setEnergyCondensers(prev => {
+        const newEnergyCondensers = [...prev]
+        const condenser = newEnergyCondensers[index]
+
+        if (energy.gte(condenser.cost)) {
+          setEnergy(prevEnergy => prevEnergy.minus(condenser.cost))
+          condenser.amount = condenser.amount.plus(1)
+          condenser.purchased += 1
+
+          if (condenser.purchased % 10 === 0) {
+            condenser.cost = condenser.cost.times(condenser.costMultiplier)
+            condenser.multiplier = condenser.multiplier.times(2)
           }
+
+          return newEnergyCondensers
         }
-        return item
+
+        return newEnergyCondensers
       })
-    )
-  }
+    },
+    [energy]
+  )
+
+  const buy10EnergyCondenser = useCallback(
+    (index: number) => {
+      setEnergyCondensers(prev => {
+        const newEnergyCondensers = [...prev]
+        const condenser = newEnergyCondensers[index]
+        const totalBuyAmount = condenser.purchased % 10
+        const totalCost = new Decimal(totalBuyAmount).times(condenser.cost)
+
+        if (energy.gte(totalCost)) {
+          setEnergy(prevEnergy => prevEnergy.minus(totalCost))
+          condenser.amount = condenser.amount.plus(10)
+          condenser.purchased += 10
+
+          return newEnergyCondensers
+        }
+        return newEnergyCondensers
+      })
+    },
+    [energy]
+  )
 
   return (
     <ContextProvider
-      value={{ energyCondensers, buyEnergyCondenser, buy10EnergyCondenser }}
+      value={{
+        energy,
+        energyCondensers,
+        buyEnergyCondenser,
+        buy10EnergyCondenser
+      }}
     >
       {children}
     </ContextProvider>
@@ -61,16 +105,11 @@ type EnergyProviderProps = {
   children: React.ReactNode
 }
 
-type EnergyCondenserType = {
-  name: EnergyCondenser
-  amount: number
-  purchase: number
-}
-
 type EnergyContextType = {
-  energyCondensers: EnergyCondenserType[]
-  buyEnergyCondenser: (name: EnergyCondenser) => void
-  buy10EnergyCondenser: (name: EnergyCondenser) => void
+  energy: Decimal
+  energyCondensers: EnergyCondenser[]
+  buyEnergyCondenser: (index: number) => void
+  buy10EnergyCondenser: (index: number) => void
 }
 
 export default EnergyCondenserProvider
