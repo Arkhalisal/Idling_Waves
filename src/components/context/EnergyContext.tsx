@@ -3,6 +3,7 @@
 import Decimal from 'break_infinity.js'
 import { useState } from 'react'
 
+import { DEFAULT_ENERGY } from '@/constants/defaultSetting'
 import { createStrictContext } from '@/util/context/createStrictContext'
 
 const [ContextProvider, useEnergyContext] = createStrictContext<EnergyContextType>('Energy')
@@ -10,7 +11,7 @@ const [ContextProvider, useEnergyContext] = createStrictContext<EnergyContextTyp
 export { useEnergyContext }
 
 const EnergyProvider = ({ children }: EnergyProviderProps) => {
-  const [energy, setEnergy] = useState<Decimal>(new Decimal(10))
+  const [energy, setEnergy] = useState<Decimal>(new Decimal(DEFAULT_ENERGY))
 
   return <ContextProvider value={{ energy, setEnergy }}>{children}</ContextProvider>
 }

@@ -5,7 +5,9 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter'
 
 import EnergyCondenserProvider from '@/components/context/EnergyCondenserContext'
 import EnergyProvider from '@/components/context/EnergyContext'
+import GameLoopProvider from '@/components/context/GameLoopContext'
 import NavbarProvider from '@/components/context/NavbarContext'
+import SaveLoadProvider from '@/components/context/SaveLoadContext'
 import theme from '@/styles/muiTheme'
 
 const Providers = ({ children }: ProvidersProps) => {
@@ -13,11 +15,19 @@ const Providers = ({ children }: ProvidersProps) => {
     <BaseProvider>
       <GenericProvider>
         <NavbarProvider>
-          <EnergyCondenserProvider>{children}</EnergyCondenserProvider>
+          <FunctionalProvider>
+            <SaveLoadProvider>
+              <GameLoopProvider>{children}</GameLoopProvider>
+            </SaveLoadProvider>
+          </FunctionalProvider>
         </NavbarProvider>
       </GenericProvider>
     </BaseProvider>
   )
+}
+
+const FunctionalProvider = ({ children }: ProvidersProps) => {
+  return <EnergyCondenserProvider>{children}</EnergyCondenserProvider>
 }
 
 const GenericProvider = ({ children }: ProvidersProps) => {

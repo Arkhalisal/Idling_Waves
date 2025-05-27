@@ -3,9 +3,11 @@
 import Decimal from 'break_infinity.js'
 import { useCallback, useEffect, useState } from 'react'
 
-import { DEFAULT_TICK_SPEED, DEFAULT_TICK_SPEED_MS } from '@/constants/defaultSetting'
 import { EnergyCondenser, initialEnergyCondensers } from '@/constants/energyCondenser'
 import { createStrictContext } from '@/util/context/createStrictContext'
+import { reminder } from '@/util/function/math'
+
+import { useEnergyContext } from './EnergyContext'
 
 const [ContextProvider, useEnergyCondenserContext] =
   createStrictContext<EnergyContextType>('EnergyCondenser')
@@ -13,46 +15,55 @@ const [ContextProvider, useEnergyCondenserContext] =
 export { useEnergyCondenserContext }
 
 const EnergyCondenserProvider = ({ children }: EnergyProviderProps) => {
-  const [energy, setEnergy] = useState<Decimal>(new Decimal(10))
+  const { energy, setEnergy } = useEnergyContext()
+
   const [energyCondensers, setEnergyCondensers] =
     useState<EnergyCondenser[]>(initialEnergyCondensers)
 
-  useEffect(() => {
-    const gameLoop = setInterval(() => {
-      setEnergyCondensers(prev => {
-        const newEnergyCondensers = [...prev]
-        for (let i = newEnergyCondensers.length - 1; i >= 0; i--) {
-          const condenser = newEnergyCondensers[i]
-          const finalProduction = condenser.amount
-            .times(condenser.production)
-            .times(condenser.multiplier)
-            .dividedBy(DEFAULT_TICK_SPEED_MS)
-          if (i === 0) {
-            setEnergy(prevEnergy => prevEnergy.plus(finalProduction))
-          } else {
-            newEnergyCondensers[i - 1].amount =
-              newEnergyCondensers[i - 1].amount.plus(finalProduction)
-          }
-        }
-        return newEnergyCondensers
-      })
-    }, DEFAULT_TICK_SPEED)
+  // Pending values to handle energy and cost accumulation
+  // ? These are used to ensure that set energy updates are applied without setting energy on render
+  const [pendingEnergy, setPendingEnergy] = useState<Decimal>(new Decimal(0))
+  const [pendingCost, setPendingCost] = useState<Decimal>(new Decimal(0))
 
-    return () => clearInterval(gameLoop)
+  const energyCondenserLoop = useCallback((producionRate: number) => {
+    setEnergyCondensers(prev => {
+      const newEnergyCondensers = [...prev]
+      let totalProduction = new Decimal(0)
+
+      for (let i = newEnergyCondensers.length - 1; i >= 0; i--) {
+        const condenser = newEnergyCondensers[i]
+        const finalProduction = condenser.amount
+          .times(condenser.production)
+          .times(condenser.multiplier)
+          .dividedBy(producionRate)
+
+        if (i === 0) {
+          totalProduction = totalProduction.plus(finalProduction)
+        } else {
+          newEnergyCondensers[i - 1].amount =
+            newEnergyCondensers[i - 1].amount.plus(finalProduction)
+        }
+      }
+
+      setPendingEnergy(prev => prev.plus(totalProduction))
+      return newEnergyCondensers
+    })
   }, [])
 
   const buyEnergyCondenser = useCallback(
-    (index: number) => {
+    (index: number, buyAmount: Decimal, noAdd = false) => {
       setEnergyCondensers(prev => {
         const newEnergyCondensers = [...prev]
         const condenser = newEnergyCondensers[index]
 
-        if (energy.gte(condenser.cost)) {
-          setEnergy(prevEnergy => prevEnergy.minus(condenser.cost))
-          condenser.amount = condenser.amount.plus(1)
-          condenser.purchased += 1
+        if (energy.gte(condenser.cost.times(buyAmount))) {
+          if (!noAdd) {
+            setPendingEnergy(prevEnergy => prevEnergy.plus(condenser.production.times(buyAmount)))
+          }
+          condenser.amount = condenser.amount.plus(buyAmount)
+          condenser.purchased = condenser.purchased.plus(buyAmount)
 
-          if (condenser.purchased % 10 === 0) {
+          if (reminder(condenser.purchased).eq(0)) {
             condenser.cost = condenser.cost.times(condenser.costMultiplier)
             condenser.multiplier = condenser.multiplier.times(2)
           }
@@ -66,34 +77,47 @@ const EnergyCondenserProvider = ({ children }: EnergyProviderProps) => {
     [energy]
   )
 
-  const buy10EnergyCondenser = useCallback(
-    (index: number) => {
-      setEnergyCondensers(prev => {
-        const newEnergyCondensers = [...prev]
-        const condenser = newEnergyCondensers[index]
-        const totalBuyAmount = condenser.purchased % 10
-        const totalCost = new Decimal(totalBuyAmount).times(condenser.cost)
+  const buyMaxEnergyCondenser = useCallback(() => {
+    let totalCost = new Decimal(0)
 
-        if (energy.gte(totalCost)) {
-          setEnergy(prevEnergy => prevEnergy.minus(totalCost))
-          condenser.amount = condenser.amount.plus(10)
-          condenser.purchased += 10
+    for (let i = 0; i < energyCondensers.length; i++) {
+      if (!energyCondensers[i].unlocked) continue
 
-          return newEnergyCondensers
-        }
-        return newEnergyCondensers
-      })
-    },
-    [energy]
-  )
+      const condenser = energyCondensers[i]
+      const canBuy = energy.gte(condenser.cost.times(10))
+      const buyAmount = new Decimal(10).minus(reminder(condenser.purchased))
+
+      if (energy.gte(condenser.cost.times(buyAmount).plus(totalCost)) && canBuy) {
+        totalCost = totalCost.plus(condenser.cost.times(buyAmount))
+        buyEnergyCondenser(i, buyAmount, true)
+      }
+    }
+
+    if (totalCost.gt(0)) {
+      setPendingCost(prevCost => prevCost.plus(totalCost))
+    }
+  }, [buyEnergyCondenser, energy, energyCondensers])
+
+  useEffect(() => {
+    if (pendingEnergy.gt(0)) {
+      setEnergy(prevEnergy => prevEnergy.plus(pendingEnergy))
+      setPendingEnergy(new Decimal(0))
+    }
+
+    if (pendingCost.gt(0)) {
+      setEnergy(prevEnergy => prevEnergy.minus(pendingCost))
+      setPendingCost(new Decimal(0))
+    }
+  }, [pendingEnergy, pendingCost, setEnergy])
 
   return (
     <ContextProvider
       value={{
-        energy,
         energyCondensers,
+        setEnergyCondensers,
         buyEnergyCondenser,
-        buy10EnergyCondenser
+        buyMaxEnergyCondenser,
+        energyCondenserLoop
       }}
     >
       {children}
@@ -106,10 +130,11 @@ type EnergyProviderProps = {
 }
 
 type EnergyContextType = {
-  energy: Decimal
   energyCondensers: EnergyCondenser[]
-  buyEnergyCondenser: (index: number) => void
-  buy10EnergyCondenser: (index: number) => void
+  setEnergyCondensers: React.Dispatch<React.SetStateAction<EnergyCondenser[]>>
+  buyEnergyCondenser: (index: number, buyAmount: Decimal) => void
+  buyMaxEnergyCondenser: () => void
+  energyCondenserLoop: (producionRate: number) => void
 }
 
 export default EnergyCondenserProvider

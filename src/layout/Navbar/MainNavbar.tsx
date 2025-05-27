@@ -45,6 +45,8 @@ const StyledTooltip = styled(Tooltip)`
     height: 34px;
 
     clip-path: polygon(100% 50%, 100% 100%, 50% 100%, 75% 75%, 50% 100%);
+
+    background-color: #1976d2;
   }
 
   display: flex;
@@ -55,17 +57,12 @@ const StyledTooltip = styled(Tooltip)`
 `
 
 const MainNavbar = () => {
-  const { CurrentTab, handleNavbarCycle, handleNavbarChange } =
-    useNavbarContext()
+  const { CurrentTab, handleNavbarCycle, handleNavbarChange } = useNavbarContext()
 
   return (
     <MainContainer>
       <Info>hi</Info>
-      <StyledTabs
-        orientation='vertical'
-        value={CurrentTab}
-        onChange={handleNavbarChange}
-      >
+      <StyledTabs orientation='vertical' value={CurrentTab} onChange={handleNavbarChange}>
         {R.map(
           item => (
             <StyledTab
