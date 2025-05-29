@@ -1,5 +1,7 @@
 export type SaveData = {
+  lastSave: string
   energy: string
+  totalEnergy: string
   energyCondensers: {
     name: string
     amount: string

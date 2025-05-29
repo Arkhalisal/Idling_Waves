@@ -13,12 +13,20 @@ export { useEnergyContext }
 const EnergyProvider = ({ children }: EnergyProviderProps) => {
   const [energy, setEnergy] = useState<Decimal>(new Decimal(DEFAULT_ENERGY))
 
-  return <ContextProvider value={{ energy, setEnergy }}>{children}</ContextProvider>
+  const [totalGeneratedEnergy, setTotalGeneratedEnergy] = useState<Decimal>(new Decimal(0))
+
+  return (
+    <ContextProvider value={{ energy, totalGeneratedEnergy, setEnergy, setTotalGeneratedEnergy }}>
+      {children}
+    </ContextProvider>
+  )
 }
 
 type EnergyContextType = {
   energy: Decimal
+  totalGeneratedEnergy: Decimal
   setEnergy: React.Dispatch<React.SetStateAction<Decimal>>
+  setTotalGeneratedEnergy: React.Dispatch<React.SetStateAction<Decimal>>
 }
 
 type EnergyProviderProps = {

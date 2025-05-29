@@ -12,8 +12,7 @@ const StyledTab = styled(Tab)`
 `
 
 const SecondNavbar = ({ menu }: SecondNavbarProps) => {
-  const { CurrentTab, CurrentSecondNavbar, handleSecondNavbarChange } =
-    useNavbarContext()
+  const { CurrentTab, CurrentSecondNavbar, handleSecondNavbarChange } = useNavbarContext()
 
   const currentMenu = useMemo(() => {
     return CurrentTab === menu.value ? CurrentSecondNavbar : false
@@ -23,9 +22,9 @@ const SecondNavbar = ({ menu }: SecondNavbarProps) => {
     <Tabs value={currentMenu} onChange={handleSecondNavbarChange}>
       <StyledTab value={menu.value} label={menu.value} />
       {R.map(item => {
-        return (
-          <StyledTab key={item.value} value={item.value} label={item.value} />
-        )
+        if (!item.unlocked) return
+
+        return <StyledTab key={item.value} value={item.value} label={item.value} />
       }, menu.submenu)}
     </Tabs>
   )

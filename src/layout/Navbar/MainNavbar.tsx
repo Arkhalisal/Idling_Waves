@@ -3,7 +3,6 @@ import * as R from 'ramda'
 import { Tooltip } from 'react-tooltip'
 
 import { useNavbarContext } from '@/components/context/NavbarContext'
-import NavigationMenu from '@/constants/menu'
 
 import SecondNavbar from './SecondNavbar'
 
@@ -57,14 +56,16 @@ const StyledTooltip = styled(Tooltip)`
 `
 
 const MainNavbar = () => {
-  const { CurrentTab, handleNavbarCycle, handleNavbarChange } = useNavbarContext()
+  const { NavigationMenu, CurrentTab, handleNavbarCycle, handleNavbarChange } = useNavbarContext()
 
   return (
     <MainContainer>
       <Info>hi</Info>
       <StyledTabs orientation='vertical' value={CurrentTab} onChange={handleNavbarChange}>
-        {R.map(
-          item => (
+        {R.map(item => {
+          if (!item.unlocked) return
+
+          return (
             <StyledTab
               key={item.value}
               label={item.navName}
@@ -72,9 +73,8 @@ const MainNavbar = () => {
               onClick={() => handleNavbarCycle(item.value)}
               data-tooltip-id={item.navName}
             />
-          ),
-          NavigationMenu
-        )}
+          )
+        }, NavigationMenu)}
       </StyledTabs>
       {R.map(
         item => (

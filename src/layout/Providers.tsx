@@ -14,13 +14,13 @@ const Providers = ({ children }: ProvidersProps) => {
   return (
     <BaseProvider>
       <GenericProvider>
-        <NavbarProvider>
-          <FunctionalProvider>
+        <FunctionalProvider>
+          <NavbarProvider>
             <SaveLoadProvider>
               <GameLoopProvider>{children}</GameLoopProvider>
             </SaveLoadProvider>
-          </FunctionalProvider>
-        </NavbarProvider>
+          </NavbarProvider>
+        </FunctionalProvider>
       </GenericProvider>
     </BaseProvider>
   )

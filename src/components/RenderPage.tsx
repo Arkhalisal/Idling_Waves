@@ -49,10 +49,10 @@ const RenderPage = () => {
     switch (CurrentSecondNavbar) {
       case NavbarId.TethysSystem:
         return <TethysSystem />
+      case NavbarId.TethysUpgrade:
+        return <InfinityDimensions />
       case NavbarId.Achievements:
         return <NormalAchievement />
-      case NavbarId.InfinityDimensions:
-        return <InfinityDimensions />
       default:
         return <></>
     }

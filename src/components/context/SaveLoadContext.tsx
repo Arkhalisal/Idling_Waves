@@ -1,6 +1,7 @@
 import 'dotenv/config'
 
 import Decimal from 'break_infinity.js'
+import { differenceInSeconds } from 'date-fns'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { DEFAULT_SAVE_SPEED } from '@/constants/defaultSetting'
@@ -16,25 +17,30 @@ const [ContextProvider, useSaveLoadContext] = createStrictContext<SaveLoadContex
 export { useSaveLoadContext }
 
 const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
-  const { energy, setEnergy } = useEnergyContext()
+  const { energy, setEnergy, totalGeneratedEnergy, setTotalGeneratedEnergy } = useEnergyContext()
   const { energyCondensers, setEnergyCondensers } = useEnergyCondenserContext()
 
   const [loaded, setLoaded] = useState(false)
+  const [totalOfflineTime, setTotalOfflineTime] = useState(0)
 
   // Use refs to track the latest energy and energyCondensers
-  const energyRef = useRef(energy)
+  const currentEnergyRef = useRef(energy)
+  const totalEnergyRef = useRef(totalGeneratedEnergy)
   const energyCondensersRef = useRef(energyCondensers)
 
-  // Update refs whenever energy or energyCondensers change
+  // Update refs
   useEffect(() => {
-    energyRef.current = energy
+    currentEnergyRef.current = energy
+    totalEnergyRef.current = totalGeneratedEnergy
     energyCondensersRef.current = energyCondensers
-  }, [energy, energyCondensers])
+  }, [energy, energyCondensers, totalGeneratedEnergy])
 
   const saveGame = useCallback(() => {
     try {
       const saveData: SaveData = {
-        energy: energyRef.current.toString(),
+        lastSave: new Date().toISOString(),
+        energy: currentEnergyRef.current.toString(),
+        totalEnergy: totalEnergyRef.current.toString(),
         energyCondensers: energyCondensersRef.current.map(condenser => ({
           ...condenser,
           amount: condenser.amount.toString(),
@@ -65,10 +71,19 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
 
       const parsedData: SaveData = JSON.parse(decrypt(saveData, process.env.SECRET_SALT || ''))
 
-      const loadedEnergy = new Decimal(parsedData.energy)
+      const lastSaveTime = new Date(parsedData.lastSave)
+      const currentTime = new Date()
 
+      setTotalOfflineTime(differenceInSeconds(currentTime, lastSaveTime))
+
+      // Convert energy and totalEnergy to Decimal
+      const loadedEnergy = new Decimal(parsedData.energy)
       setEnergy(loadedEnergy)
 
+      const loadedTotalEnergy = new Decimal(parsedData.totalEnergy)
+      setTotalGeneratedEnergy(loadedTotalEnergy)
+
+      // Convert energyCondensers to Decimal and set state
       const loadedEnergyCondensers = parsedData.energyCondensers.map(condenser => ({
         ...condenser,
         amount: new Decimal(condenser.amount),
@@ -87,7 +102,7 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
     } catch (error) {
       console.error('Failed to load game:', error)
     }
-  }, [setEnergy, setEnergyCondensers])
+  }, [setEnergy, setEnergyCondensers, setTotalGeneratedEnergy])
 
   // Load game on initial render
   useEffect(() => {
@@ -97,7 +112,7 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
   // Save game every 15 seconds
   useEffect(() => {
     const saveInterval = setInterval(() => {
-      //   saveGame()
+      // saveGame()
     }, DEFAULT_SAVE_SPEED)
 
     return () => {
@@ -105,13 +120,18 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
     }
   }, [saveGame])
 
-  return <ContextProvider value={{ saveGame, loadGame, loaded }}>{children}</ContextProvider>
+  return (
+    <ContextProvider value={{ saveGame, loadGame, loaded, totalOfflineTime }}>
+      {children}
+    </ContextProvider>
+  )
 }
 
 type SaveLoadContext = {
   saveGame: () => void
   loadGame: () => void
   loaded: boolean
+  totalOfflineTime: number
 }
 
 type SaveLoadProviderProps = {

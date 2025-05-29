@@ -3,9 +3,10 @@
 import { Box, Button, styled, Typography } from '@mui/material'
 import Decimal from 'break_infinity.js'
 import * as RA from 'ramda-adjunct'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { EnergyCondenser } from '@/constants/energyCondenser'
+import { formatDecimal } from '@/util/function/format'
 import { reminder } from '@/util/function/math'
 
 import { useEnergyCondenserContext } from '../context/EnergyCondenserContext'
@@ -73,7 +74,9 @@ const EnergyCondenserAmount = styled(Typography)`
   margin-left: 50px;
 `
 
-const EnergyCondenserUpgrade = styled(Button)``
+const EnergyCondenserUpgrade = styled(Button)`
+  text-transform: none;
+`
 
 const Text = styled(Typography)``
 
@@ -83,7 +86,7 @@ const TethysSystem = () => {
   const { energyCondensers, buyEnergyCondenser, buyMaxEnergyCondenser } =
     useEnergyCondenserContext()
 
-  const [buy10, setBuy10] = useState(false)
+  const [buy10, setBuy10] = useState(true)
 
   const handleBuy10Toggle = useCallback(() => {
     setBuy10(prev => !prev)
@@ -103,25 +106,49 @@ const TethysSystem = () => {
   const handleCost = useCallback(
     (cost: Decimal, buyAmount: Decimal) => {
       if (buy10) {
-        return cost.mul(buyAmount).toFixed(0)
+        return formatDecimal(cost.times(buyAmount), 0)
       }
 
-      return cost.toFixed(0)
+      return formatDecimal(cost, 0)
     },
     [buy10]
   )
+
+  const handleButtonDisabled = useCallback(
+    (item: EnergyCondenser, buyAmount: Decimal) => {
+      if (buy10) {
+        return energy.lt(item.cost.times(buyAmount))
+      }
+
+      return energy.lt(item.cost)
+    },
+    [buy10, energy]
+  )
+
+  // Add keydown listener for "M" key
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === 'm') {
+        buyMaxEnergyCondenser()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [buyMaxEnergyCondenser])
 
   return (
     <MainContainer>
       <SectionTitle title='Tethys System' />
 
-      <CurrentEnergy>
-        Energy: {energy.gt(1000000000) ? energy.toExponential(1) : energy.toFixed(1)}
-      </CurrentEnergy>
+      <CurrentEnergy>Energy: {formatDecimal(energy)}</CurrentEnergy>
 
       <ButtonContainer>
         <ColorButton onClick={handleBuy10Toggle}>Buy {buy10 ? '10' : '1'}</ColorButton>
-        <ColorButton onClick={buyMaxEnergyCondenser}>Max</ColorButton>
+        <ColorButton onClick={buyMaxEnergyCondenser}>Max {`(M)`}</ColorButton>
       </ButtonContainer>
 
       <EnergyCondenserContainer>
@@ -135,16 +162,16 @@ const TethysSystem = () => {
               <EnergyLeftContainer>
                 <EnergyCondenserTitle>
                   <Text>{item.name}</Text>
-                  <Text>x{item.multiplier.toFixed(0)}</Text>
+                  <Text>x{formatDecimal(item.multiplier)}</Text>
                 </EnergyCondenserTitle>
 
-                <EnergyCondenserAmount>Amount: {item.amount.toFixed(0)}</EnergyCondenserAmount>
+                <EnergyCondenserAmount>Amount: {formatDecimal(item.amount)}</EnergyCondenserAmount>
               </EnergyLeftContainer>
 
               <EnergyRightContainer>
                 <EnergyCondenserUpgrade
                   onClick={() => buyEnergyCondenser(index, buyAmount)}
-                  disabled={energy.lt(item.cost.times(buyAmount))}
+                  disabled={handleButtonDisabled(item, buyAmount)}
                 >
                   {`Buy ${buyAmount} Cost: ${handleCost(item.cost, buyAmount)}`}
                 </EnergyCondenserUpgrade>

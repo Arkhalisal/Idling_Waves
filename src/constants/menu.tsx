@@ -2,28 +2,41 @@ import { NavigationMenuType } from '@/types/navbar'
 
 import { NavbarId } from './navbar'
 
-const NavigationMenu: NavigationMenuType[] = [
+const InitialNavigationMenu: NavigationMenuType[] = [
   {
     navName: 'BlackShore',
-    value: NavbarId.TethysSystem,
-    name: 'Tethys System',
     navIcon: 'Bl',
+    name: 'Tethys System',
+    value: NavbarId.TethysSystem,
+    unlocked: true,
     submenu: [
       {
+        name: 'Tethys Upgrade',
         navIcon: 'Te',
-        value: NavbarId.InfinityDimensions
+        value: NavbarId.TethysUpgrade,
+        unlocked: false
       }
     ],
-    allValues: [NavbarId.TethysSystem, NavbarId.InfinityDimensions]
+    allValues: [NavbarId.TethysSystem, NavbarId.TethysUpgrade]
+  },
+  {
+    navName: 'Adventure',
+    navIcon: 'Ad',
+    name: 'Adventure',
+    value: NavbarId.Adventure,
+    unlocked: false,
+    submenu: [],
+    allValues: [NavbarId.Adventure]
   },
   {
     navName: 'Achievements',
-    value: NavbarId.Achievements,
-    name: 'Achievements',
     navIcon: 'Ac',
+    name: 'Achievements',
+    value: NavbarId.Achievements,
+    unlocked: true,
     submenu: [],
     allValues: [NavbarId.Achievements]
   }
 ]
 
-export default NavigationMenu
+export default InitialNavigationMenu
