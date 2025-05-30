@@ -9,8 +9,8 @@ import { EnergyCondenser } from '@/constants/energyCondenser'
 import { formatDecimal } from '@/util/function/format'
 import { reminder } from '@/util/function/math'
 
-import { useEnergyCondenserContext } from '../context/EnergyCondenserContext'
-import { useEnergyContext } from '../context/EnergyContext'
+import { useEnergyCondenserContext } from '../../context/EnergyCondenserContext'
+import { useEnergyContext } from '../../context/EnergyContext'
 import ColorButton from '../share/ColorButton'
 import SectionTitle from '../share/SectionTitle'
 
@@ -24,7 +24,11 @@ const MainContainer = styled(Box)`
 
 const CurrentEnergy = styled(Typography)`
   font-size: 24px;
-  margin-bottom: 20px;
+`
+
+const EnergyPerSecond = styled(Typography)`
+  font-size: 14px;
+  padding: 6px;
 `
 
 const ButtonContainer = styled(Box)`
@@ -81,9 +85,9 @@ const EnergyCondenserUpgrade = styled(Button)`
 const Text = styled(Typography)``
 
 const TethysSystem = () => {
-  const { energy } = useEnergyContext()
+  const { energy, maxEnergy } = useEnergyContext()
 
-  const { energyCondensers, buyEnergyCondenser, buyMaxEnergyCondenser } =
+  const { energyCondensers, energyPerSecond, buyEnergyCondenser, buyMaxEnergyCondenser } =
     useEnergyCondenserContext()
 
   const [buy10, setBuy10] = useState(true)
@@ -144,7 +148,11 @@ const TethysSystem = () => {
     <MainContainer>
       <SectionTitle title='Tethys System' />
 
-      <CurrentEnergy>Energy: {formatDecimal(energy)}</CurrentEnergy>
+      <CurrentEnergy>
+        Energy: {formatDecimal(energy)}/ {formatDecimal(maxEnergy)}
+      </CurrentEnergy>
+
+      <EnergyPerSecond>EPS: {formatDecimal(energyPerSecond)}</EnergyPerSecond>
 
       <ButtonContainer>
         <ColorButton onClick={handleBuy10Toggle}>Buy {buy10 ? '10' : '1'}</ColorButton>

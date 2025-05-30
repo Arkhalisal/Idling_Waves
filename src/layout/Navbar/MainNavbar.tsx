@@ -34,11 +34,15 @@ const StyledTab = styled(Tab)`
   .Mui-selected {
     color: black;
   }
+
+  transition: all 0.3s ease;
+
+  :hover {
+    background-color: #e3f2fd;
+  }
 `
 
 const StyledTooltip = styled(Tooltip)`
-  height: 48px;
-
   .react-tooltip-arrow {
     width: 34px;
     height: 34px;
@@ -53,6 +57,8 @@ const StyledTooltip = styled(Tooltip)`
   align-items: center;
 
   padding: 0;
+
+  z-index: 1;
 `
 
 const MainNavbar = () => {

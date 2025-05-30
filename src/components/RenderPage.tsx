@@ -2,11 +2,9 @@ import { Box, styled } from '@mui/material'
 
 import { NavbarId } from '@/constants/navbar'
 
-import NormalAchievement from './Achievements/NormalAchievement'
-import InfinityDimensions from './blackShore/InfinityDimensions'
-import TethysSystem from './blackShore/TethysSystem'
 import { useNavbarContext } from './context/NavbarContext'
 import { useSaveLoadContext } from './context/SaveLoadContext'
+import { AdventureMap, NormalAchievement, TethysSystem } from './mainComponents'
 
 const MainContainer = styled(Box)`
   width: 100%;
@@ -50,7 +48,9 @@ const RenderPage = () => {
       case NavbarId.TethysSystem:
         return <TethysSystem />
       case NavbarId.TethysUpgrade:
-        return <InfinityDimensions />
+        return <></>
+      case NavbarId.Adventure:
+        return <AdventureMap />
       case NavbarId.Achievements:
         return <NormalAchievement />
       default:

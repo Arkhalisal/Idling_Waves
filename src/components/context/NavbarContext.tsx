@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useCallback, useEffect, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 
 import InitialNavigationMenu from '@/constants/menu'
 import { DefaultNavbarId, NavbarId } from '@/constants/navbar'
@@ -22,26 +22,25 @@ const NavbarProvider = ({ children }: NavbarProviderProps) => {
 
   const { energy } = useEnergyContext()
 
+  // Main Navbar unlocked status
+
+  const adventureUnlocked = useMemo(() => {
+    return NavigationMenu.find(menu => menu.value === NavbarId.Adventure)?.unlocked || false
+  }, [NavigationMenu])
+
   useEffect(() => {
-    if (
-      energy.gte(100) &&
-      !NavigationMenu.find(menu => menu.value === NavbarId.Adventure)?.unlocked
-    ) {
-      console.log('Unlocking Adventure tab')
+    if (adventureUnlocked) {
+      return
+    }
+
+    if (energy.gte(100)) {
       setNavigationMenu(prev => {
         return prev.map(menu => {
-          if (menu.value === NavbarId.Adventure) {
-            return {
-              ...menu,
-              unlocked: true
-            }
-          } else {
-            return menu
-          }
+          return menu.value === NavbarId.Adventure ? { ...menu, unlocked: true } : menu
         })
       })
     }
-  }, [energy])
+  }, [adventureUnlocked, energy])
 
   const handleNavbarCycle = useCallback(
     (tab: number) => {

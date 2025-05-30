@@ -30,7 +30,7 @@ export const initialEnergyCondensers: EnergyCondenser[] = [
     costMultiplier: new Decimal('1e3'),
     production: new Decimal(1),
     multiplier: new Decimal(1),
-    unlocked: true
+    unlocked: false
   },
   {
     name: 'EnergyCondenser 3',
@@ -40,7 +40,7 @@ export const initialEnergyCondensers: EnergyCondenser[] = [
     costMultiplier: new Decimal('1e3'),
     production: new Decimal(1),
     multiplier: new Decimal(1),
-    unlocked: true
+    unlocked: false
   },
   {
     name: 'EnergyCondenser 4',
@@ -50,6 +50,6 @@ export const initialEnergyCondensers: EnergyCondenser[] = [
     costMultiplier: new Decimal('1e3'),
     production: new Decimal(1),
     multiplier: new Decimal(1),
-    unlocked: true
+    unlocked: false
   }
 ]
