@@ -6,3 +6,8 @@ export enum NavbarId {
 }
 
 export const DefaultNavbarId = NavbarId.TethysSystem
+
+export enum MapNavbarId {
+  HuangLong = 0,
+  Rinacita = 1
+}

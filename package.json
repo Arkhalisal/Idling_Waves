@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "yarn@3.8.1",
   "scripts": {
-    "dev": "kill -9 $(lsof -ti:4000) && next dev -p 4000",
+    "dev": "lsof -ti:4000 | xargs kill -9 || true && next dev -p 4000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -22,6 +22,7 @@
     "dotenv": "^16.5.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
+    "leaflet-defaulticon-compatibility": "^0.1.2",
     "next": "15.3.2",
     "ramda": "^0.30.1",
     "ramda-adjunct": "^5.1.0",

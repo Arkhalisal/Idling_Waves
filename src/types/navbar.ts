@@ -16,3 +16,9 @@ export type SubmenuType = {
   value: NavbarId
   unlocked: boolean
 }
+
+export type ThirdNavbarType = {
+  name: string
+  value: number
+  unlocked: boolean
+}

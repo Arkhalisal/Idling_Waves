@@ -3,7 +3,7 @@
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 
 import InitialNavigationMenu from '@/constants/menu'
-import { DefaultNavbarId, NavbarId } from '@/constants/navbar'
+import { DefaultNavbarId, MapNavbarId, NavbarId } from '@/constants/navbar'
 import { NavigationMenuType } from '@/types/navbar'
 import { createStrictContext } from '@/util/context/createStrictContext'
 
@@ -41,6 +41,8 @@ const NavbarProvider = ({ children }: NavbarProviderProps) => {
       })
     }
   }, [adventureUnlocked, energy])
+
+  // handle main navbar and second navbar functions
 
   const handleNavbarCycle = useCallback(
     (tab: number) => {
@@ -90,16 +92,22 @@ const NavbarProvider = ({ children }: NavbarProviderProps) => {
     [CurrentTab, NavigationMenu]
   )
 
+  // handle map navbar
+
+  const [currentMapNavbar, setCurrentMapNavbar] = useState(MapNavbarId.HuangLong)
+
   return (
     <ContextProvider
       value={{
         NavigationMenu,
         CurrentTab,
         CurrentSecondNavbar,
+        currentMapNavbar,
         setNavigationMenu,
         handleNavbarCycle,
         handleNavbarChange,
-        handleSecondNavbarChange
+        handleSecondNavbarChange,
+        setCurrentMapNavbar
       }}
     >
       {children}
@@ -115,10 +123,12 @@ type NavbarContextType = {
   NavigationMenu: NavigationMenuType[]
   CurrentTab: number
   CurrentSecondNavbar: number
+  currentMapNavbar: number
   setNavigationMenu: React.Dispatch<React.SetStateAction<NavigationMenuType[]>>
   handleNavbarCycle: (tab: number) => void
   handleNavbarChange: (event: React.SyntheticEvent, newValue: number) => void
   handleSecondNavbarChange: (event: React.SyntheticEvent, newValue: number) => void
+  setCurrentMapNavbar: React.Dispatch<React.SetStateAction<number>>
 }
 
 export default NavbarProvider

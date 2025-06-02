@@ -25,7 +25,7 @@ const StyledTooltip = styled(Tooltip)`
   justify-content: center;
   align-items: center;
 
-  background-color: aliceblue;
+  background-color: lightblue;
   color: black;
 `
 
@@ -37,21 +37,44 @@ const SecondNavbar = ({ menu }: SecondNavbarProps) => {
   }, [CurrentTab, menu.value, CurrentSecondNavbar])
 
   return (
-    <StyledTabs value={currentMenu} onChange={handleSecondNavbarChange}>
-      <StyledTab value={menu.value} label={menu.value} data-tooltip-id={menu.navIcon} />
+    <>
+      <StyledTabs value={currentMenu} onChange={handleSecondNavbarChange}>
+        <StyledTab value={menu.value} label={menu.value} data-tooltip-id={menu.navIcon} />
+        {R.map(item => {
+          if (!item.unlocked) return
+
+          return (
+            <StyledTab
+              key={item.value}
+              value={item.value}
+              label={item.value}
+              data-tooltip-id={item.navIcon}
+            />
+          )
+        }, menu.submenu)}
+      </StyledTabs>
+      <StyledTooltip
+        id={menu.navIcon}
+        place='top'
+        content={menu.name}
+        border='1px solid #1976d2'
+        style={{ backgroundColor: 'black' }}
+      />
       {R.map(item => {
         if (!item.unlocked) return
 
         return (
-          <StyledTab
+          <StyledTooltip
             key={item.value}
-            value={item.value}
-            label={item.value}
-            data-tooltip-id={item.navIcon}
+            id={item.navIcon}
+            place='top'
+            content={item.name}
+            border='1px solid #1976d2'
+            style={{ backgroundColor: 'black' }}
           />
         )
       }, menu.submenu)}
-    </StyledTabs>
+    </>
   )
 }
 

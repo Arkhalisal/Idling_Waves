@@ -1,10 +1,14 @@
+'use client'
+
 import { Box, styled } from '@mui/material'
+import dynamic from 'next/dynamic'
+import { useMemo } from 'react'
 
 import { NavbarId } from '@/constants/navbar'
 
 import { useNavbarContext } from './context/NavbarContext'
 import { useSaveLoadContext } from './context/SaveLoadContext'
-import { AdventureMap, NormalAchievement, TethysSystem } from './mainComponents'
+import { NormalAchievement, TethysSystem } from './mainComponents'
 
 const MainContainer = styled(Box)`
   width: 100%;
@@ -15,6 +19,8 @@ const MainContainer = styled(Box)`
 
   margin-top: 20px;
   padding: 0 40px;
+
+  position: relative;
 `
 
 const LoadingContainer = styled(Box)`
@@ -34,6 +40,13 @@ const RenderPage = () => {
 
   const { loaded } = useSaveLoadContext()
 
+  const Map = useMemo(() => {
+    return dynamic(() => import('./mainComponents/adventure/AdventureMap'), {
+      loading: () => <p>A map is loading</p>,
+      ssr: false
+    })
+  }, [])
+
   // If the game is not loaded, we don't render anything
   if (!loaded) {
     return (
@@ -50,7 +63,7 @@ const RenderPage = () => {
       case NavbarId.TethysUpgrade:
         return <></>
       case NavbarId.Adventure:
-        return <AdventureMap />
+        return <Map />
       case NavbarId.Achievements:
         return <NormalAchievement />
       default:
