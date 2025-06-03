@@ -3,6 +3,7 @@
 import { ThemeProvider } from '@mui/material'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter'
 
+import AdventureMapProvider from '@/components/context/AdventureMapContext'
 import EnergyCondenserProvider from '@/components/context/EnergyCondenserContext'
 import EnergyProvider from '@/components/context/EnergyContext'
 import GameLoopProvider from '@/components/context/GameLoopContext'
@@ -27,7 +28,11 @@ const Providers = ({ children }: ProvidersProps) => {
 }
 
 const FunctionalProvider = ({ children }: ProvidersProps) => {
-  return <EnergyCondenserProvider>{children}</EnergyCondenserProvider>
+  return (
+    <EnergyCondenserProvider>
+      <AdventureMapProvider>{children}</AdventureMapProvider>
+    </EnergyCondenserProvider>
+  )
 }
 
 const GenericProvider = ({ children }: ProvidersProps) => {
