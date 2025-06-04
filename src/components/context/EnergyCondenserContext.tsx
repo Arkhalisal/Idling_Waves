@@ -51,8 +51,13 @@ const EnergyCondenserProvider = ({ children }: EnergyProviderProps) => {
       const totalEnergy = energy.plus(energyProduction)
 
       if (totalEnergy.gt(maxEnergy)) {
-        if (energy.gte(maxEnergy)) {
+        if (energy.eq(maxEnergy)) {
           // If we already have max energy, just return
+          return
+        }
+
+        if (energy.gt(maxEnergy)) {
+          setEnergy(maxEnergy)
           return
         }
 

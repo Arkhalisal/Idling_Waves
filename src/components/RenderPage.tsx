@@ -8,7 +8,7 @@ import { NavbarId } from '@/constants/navbar'
 
 import { useNavbarContext } from './context/NavbarContext'
 import { useSaveLoadContext } from './context/SaveLoadContext'
-import { NormalAchievement, TethysSystem } from './mainComponents'
+import { NormalAchievement, Setting, TethysSystem } from './mainComponents'
 
 const MainContainer = styled(Box)`
   width: 100%;
@@ -40,7 +40,7 @@ const RenderPage = () => {
 
   const { loaded } = useSaveLoadContext()
 
-  const Map = useMemo(() => {
+  const AdventureMap = useMemo(() => {
     return dynamic(() => import('./mainComponents/adventure/AdventureMap'), {
       loading: () => <p>A map is loading</p>,
       ssr: false
@@ -63,9 +63,11 @@ const RenderPage = () => {
       case NavbarId.TethysUpgrade:
         return <></>
       case NavbarId.Adventure:
-        return <Map />
+        return <AdventureMap />
       case NavbarId.Achievements:
         return <NormalAchievement />
+      case NavbarId.Settings:
+        return <Setting />
       default:
         return <></>
     }

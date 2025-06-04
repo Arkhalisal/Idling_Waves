@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import { InitialHuangLongMap } from '@/constants/map/huangLong'
 import { InitialMapNavItems } from '@/constants/navbar'
-import { MapType } from '@/types/map'
+import { AllZoneId, HuangLongMapType, PlaceHolderId } from '@/types/map'
 import { ThirdNavbarType } from '@/types/navbar'
 import { createStrictContext } from '@/util/context/createStrictContext'
 
@@ -14,15 +14,19 @@ export { useAdventureMapContext }
 const AdventureMapProvider = ({ children }: AdventureMapProviderProps) => {
   const [mapNavItems, setMapNavItems] = useState<ThirdNavbarType[]>(InitialMapNavItems)
 
-  const [huangLongMap, setHuangLongMap] = useState<MapType[]>(InitialHuangLongMap)
+  const [huangLongMap, setHuangLongMap] = useState<HuangLongMapType[]>(InitialHuangLongMap)
+
+  const [selectedZone, setSelectedZone] = useState<AllZoneId>(PlaceHolderId.Placeholder)
 
   return (
     <ContextProvider
       value={{
         mapNavItems,
         huangLongMap,
+        selectedZone,
         setMapNavItems,
-        setHuangLongMap
+        setHuangLongMap,
+        setSelectedZone
       }}
     >
       {children}
@@ -32,9 +36,11 @@ const AdventureMapProvider = ({ children }: AdventureMapProviderProps) => {
 
 type AdventureMapContextProps = {
   mapNavItems: ThirdNavbarType[]
-  huangLongMap: MapType[]
-  setMapNavItems?: React.Dispatch<React.SetStateAction<ThirdNavbarType[]>>
-  setHuangLongMap: React.Dispatch<React.SetStateAction<MapType[]>>
+  huangLongMap: HuangLongMapType[]
+  selectedZone: AllZoneId
+  setMapNavItems: React.Dispatch<React.SetStateAction<ThirdNavbarType[]>>
+  setHuangLongMap: React.Dispatch<React.SetStateAction<HuangLongMapType[]>>
+  setSelectedZone: React.Dispatch<React.SetStateAction<AllZoneId>>
 }
 
 type AdventureMapProviderProps = {

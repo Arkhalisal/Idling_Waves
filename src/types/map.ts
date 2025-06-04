@@ -1,5 +1,6 @@
-export type MapType = {
-  id: string
+export type HuangLongMapType = {
+  id: HuangLongMapId
+
   name: string
   coordinates: number[][]
   color: string
@@ -9,17 +10,23 @@ export type MapType = {
 }
 
 export enum HuangLongMapId {
-  NorfallBarrens = 'NorfallBarrens',
-  HochlandDesorock = 'HochlandDesorock',
-  ZentralebeNen = 'ZentralebeNen',
-  GeisterschlUchten = 'GeisterschlUchten',
+  SuspendedRuins = 'SuspendedRuins',
+  DesorockHighland = 'DesorockHighland',
+  CentralPlains = 'CentralPlains',
+  GorgesofSpirits = 'GorgesofSpirits',
   TowerOfAdversity = 'TowerofAdversity',
   Jinzhou = 'Jinzhou',
-  HafenstadtGuixu = 'HafenstadtGuixu',
-  Tigerschlund = 'Tigerschlund',
-  BachtWuming = 'BachtWuming',
-  DustererWald = 'DustererWald',
-  JaulenderSumpf = 'JaulenderSumpf',
+  PortCityofGuixu = 'PortCityofGuixu',
+  TigersMaw = 'TigersMaw',
+  WumingBay = 'WumingBay',
+  DimForest = 'DimForest',
+  WhiningAixsMire = 'WhiningAixsMire',
   MtFirmament = 'MtFirmament',
   BlackShore = 'BlackShore'
 }
+
+export enum PlaceHolderId {
+  Placeholder = 'Placeholder'
+}
+
+export type AllZoneId = PlaceHolderId | HuangLongMapId

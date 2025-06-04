@@ -2,55 +2,87 @@ import 'leaflet/dist/leaflet.css'
 
 import { styled } from '@mui/material'
 import ImageHuangLongMap from '@public/image/map/huang_long.png'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import ImageHuangLongMapDemo from '@public/image/map/huang_long_border.png'
 import L, { LatLngExpression } from 'leaflet'
-import { useRef } from 'react'
+import * as R from 'ramda'
+import { useCallback, useRef } from 'react'
 import { ImageOverlay, MapContainer, Polygon, Tooltip } from 'react-leaflet'
 
 import { useAdventureMapContext } from '@/components/context/AdventureMapContext'
-import { HuangLongMapId } from '@/types/map'
+import { useNavbarContext } from '@/components/context/NavbarContext'
+import { MapNavbarId } from '@/constants/navbar'
+import { HuangLongMapId, HuangLongMapType } from '@/types/map'
 
-const StyledPolygon = styled(Polygon)`
+const StyledPolygon = styled(Polygon)<{ __unlocked: boolean }>`
   :hover {
-    cursor: pointer;
-    z-index: 1000; /* Bring to front on hover */
-    fill-opacity: 0.4 !important; /* Override default fill opacity */
-    opacity: 1 !important; /* Override default opacity */
+    fill-opacity: ${props => props.__unlocked && '0.4'};
+    opacity: ${props => props.__unlocked && '1'};
   }
 `
 
 const MapController = () => {
-  const { huangLongMap } = useAdventureMapContext()
+  const { huangLongMap, setSelectedZone } = useAdventureMapContext()
 
-  const handleZoneClick = (zoneId: string) => {}
+  const { setCurrentMapNavbar } = useNavbarContext()
+
+  const handleZoneClick = useCallback(
+    (zone: HuangLongMapType) => {
+      if (!zone.unlocked) {
+        return
+      }
+
+      if (zone.id === HuangLongMapId.BlackShore) {
+        setCurrentMapNavbar(MapNavbarId.BlackShore)
+        return
+      }
+
+      setSelectedZone(zone.id)
+    },
+    [setCurrentMapNavbar, setSelectedZone]
+  )
+
+  const handlePathOptions = useCallback((zone: HuangLongMapType) => {
+    if (!zone.unlocked) {
+      return {
+        color: 'lightgray',
+        fillColor: 'lightgray',
+        dashArray: '5, 5',
+        opacity: 0.5,
+        fillOpacity: 0.2
+      }
+    } else {
+      return {
+        color: zone.color,
+        fillColor: zone.color,
+        opacity: 0.8,
+        fillOpacity: 0.2
+      }
+    }
+  }, [])
 
   return (
     <>
-      {huangLongMap.map(zone => {
+      {R.map(zone => {
         return (
           <StyledPolygon
             key={zone.id}
+            __unlocked={zone.unlocked}
             positions={zone.coordinates as LatLngExpression[]}
-            pathOptions={{
-              color: zone.color,
-              weight: 3,
-              opacity: 0.8,
-              fillColor: zone.color,
-              fillOpacity: 0.2
-            }}
+            pathOptions={handlePathOptions(zone)}
             eventHandlers={{
-              click: () => handleZoneClick(zone.id)
+              click: () => handleZoneClick(zone)
             }}
           >
-            <Tooltip>{zone.name}</Tooltip>
+            <Tooltip direction='top'>{zone.name}</Tooltip>
           </StyledPolygon>
         )
-      })}
+      }, huangLongMap)}
     </>
   )
 }
 
-const HuangLongAdventureMap = () => {
+const HuangLongAdventureMap = ({ MapEvents }: MapEventsProps) => {
   const mapRef = useRef(null)
 
   const bounds = L.latLngBounds([0, 0], [100, 100])
@@ -73,10 +105,15 @@ const HuangLongAdventureMap = () => {
       scrollWheelZoom={false}
       touchZoom={false}
     >
-      <ImageOverlay url={ImageHuangLongMapDemo.src} bounds={bounds} crossOrigin='anonymous' />
+      <MapEvents />
+      <ImageOverlay url={ImageHuangLongMap.src} bounds={bounds} crossOrigin='anonymous' />
       <MapController />
     </MapContainer>
   )
+}
+
+type MapEventsProps = {
+  MapEvents: () => null
 }
 
 export default HuangLongAdventureMap

@@ -36,6 +36,15 @@ const InitialNavigationMenu: NavigationMenuType[] = [
     unlocked: true,
     submenu: [],
     allValues: [NavbarId.Achievements]
+  },
+  {
+    navName: 'Settings',
+    navIcon: 'Se',
+    name: 'Settings',
+    value: NavbarId.Settings,
+    unlocked: true,
+    submenu: [],
+    allValues: [NavbarId.Settings]
   }
 ]
 
