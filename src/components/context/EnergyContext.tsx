@@ -15,7 +15,9 @@ const EnergyProvider = ({ children }: EnergyProviderProps) => {
 
   const [maxEnergy, setMaxEnergy] = useState<Decimal>(new Decimal(DEFAULT_MAX_ENERGY))
 
-  const [totalGeneratedEnergy, setTotalGeneratedEnergy] = useState<Decimal>(new Decimal(0))
+  const [totalGeneratedEnergy, setTotalGeneratedEnergy] = useState<Decimal>(
+    new Decimal(DEFAULT_ENERGY)
+  )
 
   return (
     <ContextProvider

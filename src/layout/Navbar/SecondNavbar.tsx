@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { Tooltip } from 'react-tooltip'
 
 import { useNavbarContext } from '@/components/context/NavbarContext'
+import NextImage from '@/components/mainComponents/share/NextImage'
 import { NavigationMenuType } from '@/types/navbar'
 
 const StyledTabs = styled(Tabs)``
@@ -29,17 +30,23 @@ const StyledTooltip = styled(Tooltip)`
   color: black;
 `
 
+const Image = styled(NextImage)``
+
 const SecondNavbar = ({ menu }: SecondNavbarProps) => {
-  const { CurrentTab, CurrentSecondNavbar, handleSecondNavbarChange } = useNavbarContext()
+  const { currentTab, currentSecondNavbar, handleSecondNavbarChange } = useNavbarContext()
 
   const currentMenu = useMemo(() => {
-    return CurrentTab === menu.value ? CurrentSecondNavbar : false
-  }, [CurrentTab, menu.value, CurrentSecondNavbar])
+    return currentTab === menu.value ? currentSecondNavbar : false
+  }, [currentTab, menu.value, currentSecondNavbar])
 
   return (
     <>
       <StyledTabs value={currentMenu} onChange={handleSecondNavbarChange}>
-        <StyledTab value={menu.value} label={menu.value} data-tooltip-id={menu.navIcon} />
+        <StyledTab
+          value={menu.value}
+          label={<Image src={menu.navIcon} alt={menu.name} />}
+          data-tooltip-id={menu.navIcon}
+        />
         {R.map(item => {
           if (!item.unlocked) return
 
@@ -47,7 +54,7 @@ const SecondNavbar = ({ menu }: SecondNavbarProps) => {
             <StyledTab
               key={item.value}
               value={item.value}
-              label={item.value}
+              label={<Image src={menu.navIcon} alt={menu.name} />}
               data-tooltip-id={item.navIcon}
             />
           )

@@ -5,7 +5,7 @@ import Decimal from 'break_infinity.js'
 import * as RA from 'ramda-adjunct'
 import { useCallback, useEffect, useState } from 'react'
 
-import { EnergyCondenser } from '@/constants/energyCondenser'
+import { EnergyCondenser } from '@/types/blackShore/energyCondenser'
 import { formatDecimal } from '@/util/function/format'
 import { reminder } from '@/util/function/math'
 
@@ -170,7 +170,7 @@ const TethysSystem = () => {
               <EnergyLeftContainer>
                 <EnergyCondenserTitle>
                   <Text>{item.name}</Text>
-                  <Text>x{formatDecimal(item.multiplier)}</Text>
+                  <Text>x{formatDecimal(item.totalMultiplier)}</Text>
                 </EnergyCondenserTitle>
 
                 <EnergyCondenserAmount>Amount: {formatDecimal(item.amount)}</EnergyCondenserAmount>

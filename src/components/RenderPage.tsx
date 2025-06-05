@@ -8,7 +8,8 @@ import { NavbarId } from '@/constants/navbar'
 
 import { useNavbarContext } from './context/NavbarContext'
 import { useSaveLoadContext } from './context/SaveLoadContext'
-import { NormalAchievement, Setting, TethysSystem } from './mainComponents'
+import { NormalAchievement, Setting, TethysSystem, TethysUpgrade } from './mainComponents'
+import Testing from './mainComponents/testing/Testing'
 
 const MainContainer = styled(Box)`
   width: 100%;
@@ -36,7 +37,7 @@ const LoadingContainer = styled(Box)`
 `
 
 const RenderPage = () => {
-  const { CurrentSecondNavbar } = useNavbarContext()
+  const { currentSecondNavbar } = useNavbarContext()
 
   const { loaded } = useSaveLoadContext()
 
@@ -57,17 +58,19 @@ const RenderPage = () => {
   }
 
   const renderComponent = () => {
-    switch (CurrentSecondNavbar) {
+    switch (currentSecondNavbar) {
       case NavbarId.TethysSystem:
         return <TethysSystem />
       case NavbarId.TethysUpgrade:
-        return <></>
+        return <TethysUpgrade />
       case NavbarId.Adventure:
         return <AdventureMap />
       case NavbarId.Achievements:
         return <NormalAchievement />
       case NavbarId.Settings:
         return <Setting />
+      case NavbarId.Testing:
+        return <Testing />
       default:
         return <></>
     }

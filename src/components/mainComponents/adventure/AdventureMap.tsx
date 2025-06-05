@@ -2,7 +2,6 @@ import { Box, styled } from '@mui/material'
 import { useCallback, useState } from 'react'
 import { useMapEvent } from 'react-leaflet'
 
-import { useAdventureMapContext } from '@/components/context/AdventureMapContext'
 import { useNavbarContext } from '@/components/context/NavbarContext'
 import { MapNavbarId } from '@/constants/navbar'
 import MapNavbar from '@/layout/Navbar/thirdNavbar/mapThirdNavbar'
@@ -57,9 +56,8 @@ const AdventureMap = () => {
   const MapEvents = () => {
     useMapEvent('mousemove', e => {
       const { lat, lng } = e.latlng
-      // Convert to our coordinate system (0-100)
       const x = Math.round(Math.max(0, Math.min(100, lng)))
-      const y = Math.round(Math.max(0, Math.min(100, lat))) // Flip Y coordinate
+      const y = Math.round(Math.max(0, Math.min(100, lat)))
       handleMapMouseMove({ x, y })
     })
 

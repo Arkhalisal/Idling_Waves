@@ -1,3 +1,5 @@
+import IconBlackShore from '@public/image/icon/Icon-black-shore.png'
+
 import { NavigationMenuType } from '@/types/navbar'
 
 import { NavbarId } from './navbar'
@@ -5,23 +7,23 @@ import { NavbarId } from './navbar'
 const InitialNavigationMenu: NavigationMenuType[] = [
   {
     navName: 'BlackShore',
-    navIcon: 'Bl',
+    navIcon: IconBlackShore.src,
     name: 'Tethys System',
     value: NavbarId.TethysSystem,
     unlocked: true,
     submenu: [
       {
         name: 'Tethys Upgrade',
-        navIcon: 'Te',
+        navIcon: IconBlackShore.src,
         value: NavbarId.TethysUpgrade,
-        unlocked: false
+        unlocked: true
       }
     ],
     allValues: [NavbarId.TethysSystem, NavbarId.TethysUpgrade]
   },
   {
     navName: 'Adventure',
-    navIcon: 'Ad',
+    navIcon: IconBlackShore.src,
     name: 'Adventure',
     value: NavbarId.Adventure,
     unlocked: false,
@@ -30,7 +32,7 @@ const InitialNavigationMenu: NavigationMenuType[] = [
   },
   {
     navName: 'Achievements',
-    navIcon: 'Ac',
+    navIcon: IconBlackShore.src,
     name: 'Achievements',
     value: NavbarId.Achievements,
     unlocked: true,
@@ -39,12 +41,21 @@ const InitialNavigationMenu: NavigationMenuType[] = [
   },
   {
     navName: 'Settings',
-    navIcon: 'Se',
+    navIcon: IconBlackShore.src,
     name: 'Settings',
     value: NavbarId.Settings,
     unlocked: true,
     submenu: [],
     allValues: [NavbarId.Settings]
+  },
+  {
+    navName: 'Testing',
+    navIcon: IconBlackShore.src,
+    name: 'Testing',
+    value: NavbarId.Testing,
+    unlocked: true,
+    submenu: [],
+    allValues: [NavbarId.Testing]
   }
 ]
 

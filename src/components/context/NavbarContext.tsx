@@ -4,50 +4,52 @@ import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 
 import InitialNavigationMenu from '@/constants/menu'
 import { DefaultNavbarId, MapNavbarId, NavbarId } from '@/constants/navbar'
+import { TethysUpgradeId } from '@/types/blackShore/tethysUpgrade'
 import { NavigationMenuType } from '@/types/navbar'
 import { createStrictContext } from '@/util/context/createStrictContext'
 
-import { useEnergyContext } from './EnergyContext'
+import { useTethysUpgradeContext } from './TethysUpgradeContext'
 
 const [ContextProvider, useNavbarContext] = createStrictContext<NavbarContextType>('Navbar')
 
 export { useNavbarContext }
 
 const NavbarProvider = ({ children }: NavbarProviderProps) => {
-  const [CurrentTab, setCurrentTab] = useState(DefaultNavbarId)
+  const { tethysUpgrade } = useTethysUpgradeContext()
 
-  const [CurrentSecondNavbar, setCurrentSecondNavbar] = useState(DefaultNavbarId)
+  const [currentTab, setCurrentTab] = useState(DefaultNavbarId)
 
-  const [NavigationMenu, setNavigationMenu] = useState(InitialNavigationMenu)
+  const [currentSecondNavbar, setCurrentSecondNavbar] = useState(DefaultNavbarId)
 
-  const { energy } = useEnergyContext()
+  const [navigationMenu, setNavigationMenu] = useState(InitialNavigationMenu)
 
   // Main Navbar unlocked status
 
   const adventureUnlocked = useMemo(() => {
-    return NavigationMenu.find(menu => menu.value === NavbarId.Adventure)?.unlocked || false
-  }, [NavigationMenu])
+    return (
+      tethysUpgrade.find(upgrade => upgrade.id === TethysUpgradeId.AdventureUnlocked)?.unlocked ||
+      false
+    )
+  }, [tethysUpgrade])
 
   useEffect(() => {
-    if (adventureUnlocked) {
+    if (!adventureUnlocked) {
       return
     }
 
-    if (energy.gte(100)) {
-      setNavigationMenu(prev => {
-        return prev.map(menu => {
-          return menu.value === NavbarId.Adventure ? { ...menu, unlocked: true } : menu
-        })
+    setNavigationMenu(prev => {
+      return prev.map(menu => {
+        return menu.value === NavbarId.Adventure ? { ...menu, unlocked: true } : menu
       })
-    }
-  }, [adventureUnlocked, energy])
+    })
+  }, [adventureUnlocked])
 
   // handle main navbar and second navbar functions
 
   const handleNavbarCycle = useCallback(
     (tab: number) => {
-      if (tab === CurrentTab) {
-        const mainNavbar = NavigationMenu.find(menu => menu.value === CurrentTab)
+      if (tab === currentTab) {
+        const mainNavbar = navigationMenu.find(menu => menu.value === currentTab)
 
         const subNavbarValues =
           mainNavbar?.submenu.filter(item => item.unlocked).map(menu => menu.value) || []
@@ -58,7 +60,7 @@ const NavbarProvider = ({ children }: NavbarProviderProps) => {
 
         const unlockedValues = [mainNavbar?.value, ...subNavbarValues]
 
-        const currentIndex = unlockedValues?.indexOf(CurrentSecondNavbar)
+        const currentIndex = unlockedValues?.indexOf(currentSecondNavbar)
 
         if (unlockedValues?.length - 1 === currentIndex) {
           setCurrentSecondNavbar(unlockedValues[0])
@@ -67,7 +69,7 @@ const NavbarProvider = ({ children }: NavbarProviderProps) => {
         }
       }
     },
-    [CurrentSecondNavbar, CurrentTab, NavigationMenu]
+    [currentTab, navigationMenu, currentSecondNavbar]
   )
 
   const handleNavbarChange = useCallback((event: React.SyntheticEvent, newValue: number) => {
@@ -77,9 +79,9 @@ const NavbarProvider = ({ children }: NavbarProviderProps) => {
 
   const handleSecondNavbarChange = useCallback(
     (event: React.SyntheticEvent, newValue: number) => {
-      const currentMenu = NavigationMenu.find(menu => menu.allValues.includes(CurrentTab))
+      const currentMenu = navigationMenu.find(menu => menu.allValues.includes(currentTab))
 
-      const selectMenu = NavigationMenu.find(menu => menu.allValues.includes(newValue))
+      const selectMenu = navigationMenu.find(menu => menu.allValues.includes(newValue))
 
       if (currentMenu && selectMenu) {
         if (currentMenu.value !== selectMenu.value) {
@@ -89,7 +91,7 @@ const NavbarProvider = ({ children }: NavbarProviderProps) => {
 
       setCurrentSecondNavbar(newValue)
     },
-    [CurrentTab, NavigationMenu]
+    [currentTab, navigationMenu]
   )
 
   // handle map navbar
@@ -99,9 +101,9 @@ const NavbarProvider = ({ children }: NavbarProviderProps) => {
   return (
     <ContextProvider
       value={{
-        NavigationMenu,
-        CurrentTab,
-        CurrentSecondNavbar,
+        navigationMenu,
+        currentTab,
+        currentSecondNavbar,
         currentMapNavbar,
         setNavigationMenu,
         handleNavbarCycle,
@@ -120,9 +122,9 @@ type NavbarProviderProps = {
 }
 
 type NavbarContextType = {
-  NavigationMenu: NavigationMenuType[]
-  CurrentTab: number
-  CurrentSecondNavbar: number
+  navigationMenu: NavigationMenuType[]
+  currentTab: number
+  currentSecondNavbar: number
   currentMapNavbar: number
   setNavigationMenu: React.Dispatch<React.SetStateAction<NavigationMenuType[]>>
   handleNavbarCycle: (tab: number) => void

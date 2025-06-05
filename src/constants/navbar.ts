@@ -3,10 +3,11 @@ export enum NavbarId {
   TethysUpgrade = 1,
   Adventure = 2,
   Achievements = 3,
-  Settings = 4
+  Settings = 4,
+  Testing = 5
 }
 
-export const DefaultNavbarId = NavbarId.Settings
+export const DefaultNavbarId = NavbarId.Testing
 
 export enum MapNavbarId {
   HuangLong = 0,

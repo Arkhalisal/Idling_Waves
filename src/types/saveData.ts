@@ -1,15 +1,22 @@
 export type SaveData = {
   lastSave: string
   energy: string
+  maxEnergy: string
   totalEnergy: string
+  navigationMenu: {
+    unlocked: boolean
+    submenu: {
+      unlocked: boolean
+    }[]
+  }[]
   energyCondensers: {
-    name: string
     amount: string
     purchased: string
     cost: string
-    costMultiplier: string
-    production: string
-    multiplier: string
+    purchasedMultiplier: string
+    unlocked: boolean
+  }[]
+  tethysUpgrade: {
     unlocked: boolean
   }[]
 }

@@ -3,11 +3,14 @@
 import Decimal from 'break_infinity.js'
 import { useCallback, useMemo, useState } from 'react'
 
-import { EnergyCondenser, initialEnergyCondensers } from '@/constants/energyCondenser'
+import { initialEnergyCondensers } from '@/constants/blackShore/energyCondenser'
+import { EnergyCondenser, EnergyCondenserId } from '@/types/blackShore/energyCondenser'
+import { TethysUpgradeId } from '@/types/blackShore/tethysUpgrade'
 import { createStrictContext } from '@/util/context/createStrictContext'
 import { reminder } from '@/util/function/math'
 
 import { useEnergyContext } from './EnergyContext'
+import { useTethysUpgradeContext } from './TethysUpgradeContext'
 
 const [ContextProvider, useEnergyCondenserContext] =
   createStrictContext<EnergyContextType>('EnergyCondenser')
@@ -17,12 +20,36 @@ export { useEnergyCondenserContext }
 const EnergyCondenserProvider = ({ children }: EnergyProviderProps) => {
   const { energy, maxEnergy, setEnergy, setTotalGeneratedEnergy } = useEnergyContext()
 
+  const { tethysUpgrade } = useTethysUpgradeContext()
+
   const [energyCondensers, setEnergyCondensers] =
     useState<EnergyCondenser[]>(initialEnergyCondensers)
 
-  const calculateProduction = useCallback((condenser: EnergyCondenser) => {
-    return condenser.amount.times(condenser.production).times(condenser.multiplier)
-  }, [])
+  const calculateTotalMult = useCallback(
+    (condenser: EnergyCondenser) => {
+      let extraMultiplier = new Decimal(1)
+
+      if (condenser.id === EnergyCondenserId.CONDENSER_1) {
+        const tethysUpgrade1 = tethysUpgrade.find(
+          upgrade => upgrade.id === TethysUpgradeId.EnergyEfficiency1
+        )
+
+        if (tethysUpgrade1?.unlocked) {
+          extraMultiplier = extraMultiplier.times(1.5)
+        }
+      }
+
+      return condenser.purchasedMultiplier.times(extraMultiplier)
+    },
+    [tethysUpgrade]
+  )
+
+  const calculateProduction = useCallback(
+    (condenser: EnergyCondenser) => {
+      return condenser.production.times(condenser.amount.times(calculateTotalMult(condenser)))
+    },
+    [calculateTotalMult]
+  )
 
   const energyPerSecond = useMemo(() => {
     return calculateProduction(energyCondensers[0])
@@ -35,6 +62,7 @@ const EnergyCondenserProvider = ({ children }: EnergyProviderProps) => {
 
         for (let i = newEnergyCondensers.length - 1; i >= 0; i--) {
           const condenser = newEnergyCondensers[i]
+          condenser.totalMultiplier = calculateTotalMult(condenser)
           const finalProduction = calculateProduction(condenser).dividedBy(producionRate)
 
           if (i !== 0) {
@@ -69,7 +97,15 @@ const EnergyCondenserProvider = ({ children }: EnergyProviderProps) => {
       setEnergy(prev => prev.plus(energyProduction))
       setTotalGeneratedEnergy(prev => prev.plus(energyProduction))
     },
-    [calculateProduction, energy, energyPerSecond, maxEnergy, setEnergy, setTotalGeneratedEnergy]
+    [
+      calculateProduction,
+      calculateTotalMult,
+      energy,
+      energyPerSecond,
+      maxEnergy,
+      setEnergy,
+      setTotalGeneratedEnergy
+    ]
   )
 
   const buyEnergyCondenser = useCallback(
@@ -85,26 +121,22 @@ const EnergyCondenserProvider = ({ children }: EnergyProviderProps) => {
       const condenser = energyCondensers[index]
       const totalCost = condenser.cost.times(buyAmount)
 
-      setEnergy(prevEnergy => prevEnergy.minus(totalCost))
+      if (energy.gte(totalCost)) {
+        setEnergy(prevEnergy => prevEnergy.minus(totalCost))
 
-      setEnergyCondensers(prev => {
-        const newEnergyCondensers = [...prev]
-        const newCondenser = newEnergyCondensers[index]
+        setEnergyCondensers(prev => {
+          const newEnergyCondensers = [...prev]
+          const newCondenser = newEnergyCondensers[index]
+          const pow = condenser.purchased.add(buyAmount).divideBy(10).floor()
 
-        if (energy.gte(totalCost)) {
           newCondenser.amount = newCondenser.amount.plus(buyAmount)
           newCondenser.purchased = newCondenser.purchased.plus(buyAmount)
-
-          if (reminder(condenser.purchased).eq(0)) {
-            newCondenser.cost = newCondenser.cost.times(newCondenser.costMultiplier)
-            newCondenser.multiplier = newCondenser.multiplier.times(2)
-          }
+          newCondenser.cost = newCondenser.baseCost.times(newCondenser.costMultiplier.pow(pow))
+          newCondenser.purchasedMultiplier = new Decimal(2).pow(pow)
 
           return newEnergyCondensers
-        }
-
-        return newEnergyCondensers
-      })
+        })
+      }
     },
     [energy, energyCondensers, setEnergy]
   )
@@ -142,7 +174,6 @@ const EnergyCondenserProvider = ({ children }: EnergyProviderProps) => {
     for (let i = 0; i < energyCondensers.length; i++) {
       const condenser = energyCondensers[i]
       let nextCost = condenser.cost
-
       const alreadyBought = reminder(condenser.purchased)
 
       if (alreadyBought.gt(0)) {

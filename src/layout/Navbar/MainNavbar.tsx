@@ -62,12 +62,12 @@ const StyledTooltip = styled(Tooltip)`
 `
 
 const MainNavbar = () => {
-  const { NavigationMenu, CurrentTab, handleNavbarCycle, handleNavbarChange } = useNavbarContext()
+  const { navigationMenu, currentTab, handleNavbarCycle, handleNavbarChange } = useNavbarContext()
 
   return (
     <MainContainer>
       <Info>hi</Info>
-      <StyledTabs orientation='vertical' value={CurrentTab} onChange={handleNavbarChange}>
+      <StyledTabs orientation='vertical' value={currentTab} onChange={handleNavbarChange}>
         {R.map(item => {
           if (!item.unlocked) return
 
@@ -80,7 +80,7 @@ const MainNavbar = () => {
               data-tooltip-id={item.navName}
             />
           )
-        }, NavigationMenu)}
+        }, navigationMenu)}
       </StyledTabs>
       {R.map(
         item => (
@@ -98,7 +98,7 @@ const MainNavbar = () => {
             <SecondNavbar menu={item} />
           </StyledTooltip>
         ),
-        NavigationMenu
+        navigationMenu
       )}
     </MainContainer>
   )

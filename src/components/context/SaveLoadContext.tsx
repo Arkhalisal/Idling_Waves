@@ -4,52 +4,77 @@ import Decimal from 'break_infinity.js'
 import { differenceInSeconds } from 'date-fns'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { initialEnergyCondensers } from '@/constants/blackShore/energyCondenser'
 import { DEFAULT_ENERGY, DEFAULT_SAVE_SPEED } from '@/constants/defaultSetting'
-import { initialEnergyCondensers } from '@/constants/energyCondenser'
 import { SaveData } from '@/types/saveData'
 import { createStrictContext } from '@/util/context/createStrictContext'
 import { decrypt, encrypt } from '@/util/function/encrypt'
 
 import { useEnergyCondenserContext } from './EnergyCondenserContext'
 import { useEnergyContext } from './EnergyContext'
+import { useNavbarContext } from './NavbarContext'
+import { useTethysUpgradeContext } from './TethysUpgradeContext'
 
 const [ContextProvider, useSaveLoadContext] = createStrictContext<SaveLoadContext>('SaveLoad')
 
 export { useSaveLoadContext }
 
 const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
-  const { energy, setEnergy, totalGeneratedEnergy, setTotalGeneratedEnergy } = useEnergyContext()
+  const {
+    energy,
+    setEnergy,
+    maxEnergy,
+    setMaxEnergy,
+    totalGeneratedEnergy,
+    setTotalGeneratedEnergy
+  } = useEnergyContext()
   const { energyCondensers, setEnergyCondensers } = useEnergyCondenserContext()
+  const { tethysUpgrade, setTethysUpgrade } = useTethysUpgradeContext()
+  const { navigationMenu, setNavigationMenu } = useNavbarContext()
 
   const [loaded, setLoaded] = useState(false)
   const [totalOfflineTime, setTotalOfflineTime] = useState(0)
 
   // Use refs to track the latest energy and energyCondensers
   const currentEnergyRef = useRef(energy)
+  const maxEnergyRef = useRef(maxEnergy)
   const totalEnergyRef = useRef(totalGeneratedEnergy)
   const energyCondensersRef = useRef(energyCondensers)
+  const tethysUpgradeRef = useRef(tethysUpgrade)
+  const navigationMenuRef = useRef(navigationMenu)
 
   // Update refs
   useEffect(() => {
     currentEnergyRef.current = energy
+    maxEnergyRef.current = maxEnergy
     totalEnergyRef.current = totalGeneratedEnergy
     energyCondensersRef.current = energyCondensers
-  }, [energy, energyCondensers, totalGeneratedEnergy])
+    tethysUpgradeRef.current = tethysUpgrade
+    navigationMenuRef.current = navigationMenu
+  }, [energy, energyCondensers, maxEnergy, navigationMenu, tethysUpgrade, totalGeneratedEnergy])
 
   const saveGame = useCallback(() => {
     try {
       const saveData: SaveData = {
         lastSave: new Date().toISOString(),
         energy: currentEnergyRef.current.toString(),
+        maxEnergy: maxEnergyRef.current.toString(),
         totalEnergy: totalEnergyRef.current.toString(),
+        navigationMenu: navigationMenuRef.current.map(menu => ({
+          unlocked: menu.unlocked,
+          submenu: menu.submenu.map(submenu => ({
+            unlocked: submenu.unlocked
+          }))
+        })),
         energyCondensers: energyCondensersRef.current.map(condenser => ({
-          ...condenser,
           amount: condenser.amount.toString(),
           purchased: condenser.purchased.toString(),
-          costMultiplier: condenser.costMultiplier.toString(),
           cost: condenser.cost.toString(),
-          production: condenser.production.toString(),
-          multiplier: condenser.multiplier.toString()
+          purchasedMultiplier: condenser.purchasedMultiplier.toString(),
+          unlocked: condenser.unlocked
+        })),
+        tethysUpgrade: tethysUpgradeRef.current.map(upgrade => ({
+          unlocked: upgrade.unlocked
         }))
       }
 
@@ -101,25 +126,71 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
           setTotalOfflineTime(offlineTime)
         }
 
-        // Convert energy and totalEnergy to Decimal
+        // Convert energies to Decimal
         const loadedEnergy = new Decimal(parsedData.energy)
         setEnergy(loadedEnergy)
+
+        const loadedMaxEnergy = new Decimal(parsedData.maxEnergy)
+        setMaxEnergy(loadedMaxEnergy)
 
         const loadedTotalEnergy = new Decimal(parsedData.totalEnergy)
         setTotalGeneratedEnergy(loadedTotalEnergy)
 
         // Convert energyCondensers to Decimal and set state
         const loadedEnergyCondensers = parsedData.energyCondensers.map(condenser => ({
-          ...condenser,
           amount: new Decimal(condenser.amount),
           purchased: new Decimal(condenser.purchased),
-          costMultiplier: new Decimal(condenser.costMultiplier),
           cost: new Decimal(condenser.cost),
-          production: new Decimal(condenser.production),
-          multiplier: new Decimal(condenser.multiplier)
+          purchasedMultiplier: new Decimal(condenser.purchasedMultiplier),
+          unlocked: condenser.unlocked
         }))
 
-        setEnergyCondensers(loadedEnergyCondensers)
+        setEnergyCondensers(prev => {
+          return prev.map((existingCondenser, index) => {
+            const loadedCondenser = loadedEnergyCondensers[index]
+            if (!loadedCondenser) return existingCondenser
+            return {
+              ...existingCondenser,
+              amount: loadedCondenser.amount,
+              purchased: loadedCondenser.purchased,
+              cost: loadedCondenser.cost,
+              purchasedMultiplier: loadedCondenser.purchasedMultiplier,
+              unlocked: loadedCondenser.unlocked
+            }
+          })
+        })
+
+        // Set Tethys upgrades
+        setTethysUpgrade(prev => {
+          return prev.map((existingUpgrade, index) => {
+            const loadedUpgrade = parsedData.tethysUpgrade[index]
+            if (!loadedUpgrade) return existingUpgrade
+            return {
+              ...existingUpgrade,
+              unlocked: loadedUpgrade.unlocked
+            }
+          })
+        })
+
+        // Set navigation menu
+        setNavigationMenu(prev => {
+          return prev.map((existingMenu, index) => {
+            const loadedMenu = parsedData.navigationMenu[index]
+            if (!loadedMenu) return existingMenu
+            return {
+              ...existingMenu,
+              unlocked: loadedMenu.unlocked,
+              submenu: existingMenu.submenu.map((submenu, subIndex) => {
+                const loadedSubmenu = loadedMenu.submenu[subIndex]
+                if (!loadedSubmenu) return submenu
+                return {
+                  ...submenu,
+                  unlocked: loadedSubmenu.unlocked
+                }
+              })
+            }
+          })
+        })
 
         console.log('Game loaded:', parsedData)
 
@@ -128,7 +199,14 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
         console.error('Failed to load game:', error)
       }
     },
-    [setEnergy, setEnergyCondensers, setTotalGeneratedEnergy]
+    [
+      setEnergy,
+      setEnergyCondensers,
+      setMaxEnergy,
+      setNavigationMenu,
+      setTethysUpgrade,
+      setTotalGeneratedEnergy
+    ]
   )
 
   const resetGame = useCallback(() => {
@@ -137,6 +215,7 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
     setEnergyCondensers(initialEnergyCondensers)
     setTotalOfflineTime(0)
     localStorage.removeItem('saveData')
+    window.location.reload()
   }, [setEnergy, setEnergyCondensers, setTotalGeneratedEnergy, setTotalOfflineTime])
 
   // Load game on initial render

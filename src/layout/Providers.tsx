@@ -9,6 +9,7 @@ import EnergyProvider from '@/components/context/EnergyContext'
 import GameLoopProvider from '@/components/context/GameLoopContext'
 import NavbarProvider from '@/components/context/NavbarContext'
 import SaveLoadProvider from '@/components/context/SaveLoadContext'
+import TethysUpgradeProvider from '@/components/context/TethysUpgradeContext'
 import theme from '@/styles/muiTheme'
 
 const Providers = ({ children }: ProvidersProps) => {
@@ -29,9 +30,11 @@ const Providers = ({ children }: ProvidersProps) => {
 
 const FunctionalProvider = ({ children }: ProvidersProps) => {
   return (
-    <EnergyCondenserProvider>
-      <AdventureMapProvider>{children}</AdventureMapProvider>
-    </EnergyCondenserProvider>
+    <TethysUpgradeProvider>
+      <EnergyCondenserProvider>
+        <AdventureMapProvider>{children}</AdventureMapProvider>
+      </EnergyCondenserProvider>
+    </TethysUpgradeProvider>
   )
 }
 
