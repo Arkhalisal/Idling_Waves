@@ -1,7 +1,7 @@
 'use client'
 
 import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material'
-import { Backdrop, Box, Button, Paper, Stack, styled, Typography } from '@mui/material'
+import { Backdrop, Box, Paper, styled, Typography } from '@mui/material'
 import type React from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -82,21 +82,21 @@ const ProgressWord = styled(Typography)`
   font-size: 12px;
 `
 
-const FooterContainer = styled(Box)({
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: '0 24px 16px 24px'
-})
+const FooterContainer = styled(Box)<ContentProps>`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px 16px 24px;
 
-const ActionButton = styled(Button)<{ show: boolean }>(({ show }) => ({
-  opacity: show ? 1 : 0,
-  transition: 'opacity 200ms ease-in-out'
-}))
+  opacity: ${props => (props.show ? 1 : 0)};
+  transition: opacity 0.2s ease-in-out;
+`
+
+const NextButton = styled(ColorButton)``
 
 const PopupSequence: React.FC<PopupSystemProps> = ({
   popups,
-  disableAutoAdvance = false,
+  autoAdvance = false,
   onAllComplete
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -181,7 +181,7 @@ const PopupSequence: React.FC<PopupSystemProps> = ({
     clearTimers()
 
     // Set up timer if duration is specified, content is visible, and auto-advance is NOT disabled
-    if (showContent && currentPopup?.duration && currentPopup.duration > 0 && !disableAutoAdvance) {
+    if (showContent && currentPopup?.duration && currentPopup.duration > 0 && !!autoAdvance) {
       // Main timeout for auto-advance
       timeoutRef.current = setTimeout(() => {
         closeCurrentPopup()
@@ -196,7 +196,7 @@ const PopupSequence: React.FC<PopupSystemProps> = ({
     currentIndex,
     showContent,
     currentPopup?.duration,
-    disableAutoAdvance,
+    autoAdvance,
     closeCurrentPopup,
     clearTimers
   ])
@@ -241,18 +241,13 @@ const PopupSequence: React.FC<PopupSystemProps> = ({
         </ContentSection>
 
         {/* Footer with Actions */}
-        <FooterContainer>
-          {/* Action Buttons */}
-          <Stack direction='row' spacing={1}>
-            <ActionButton
-              show={showContent}
-              onClick={closeCurrentPopup}
-              variant='outlined'
-              endIcon={hasMorePopups ? <ArrowForwardIcon /> : undefined}
-            >
-              {hasMorePopups ? 'Next' : 'Close'}
-            </ActionButton>
-          </Stack>
+        <FooterContainer show={showContent}>
+          <NextButton
+            onClick={closeCurrentPopup}
+            endIcon={hasMorePopups ? <ArrowForwardIcon /> : undefined}
+          >
+            {hasMorePopups ? 'Next' : 'Close'}
+          </NextButton>
         </FooterContainer>
       </StylePopup>
     </StyledBackdrop>
@@ -261,7 +256,7 @@ const PopupSequence: React.FC<PopupSystemProps> = ({
 
 type PopupSystemProps = {
   popups: PopupSequenceType[]
-  disableAutoAdvance?: boolean // Disable auto-advance for entire popup system
+  autoAdvance?: boolean
   onAllComplete: () => void
 }
 

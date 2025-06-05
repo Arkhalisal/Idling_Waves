@@ -77,11 +77,7 @@ const Testing = () => {
 
       {/* Popup system */}
       {activePopups && (
-        <PopupSequence
-          popups={activePopups}
-          disableAutoAdvance={true}
-          onAllComplete={handleComplete}
-        />
+        <PopupSequence popups={activePopups} autoAdvance={false} onAllComplete={handleComplete} />
       )}
     </Box>
   )
