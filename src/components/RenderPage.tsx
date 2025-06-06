@@ -65,6 +65,8 @@ const RenderPage = () => {
         return <TethysUpgrade />
       case NavbarId.Adventure:
         return <AdventureMap />
+      case NavbarId.Battle:
+        return
       case NavbarId.Achievements:
         return <NormalAchievement />
       case NavbarId.Settings:

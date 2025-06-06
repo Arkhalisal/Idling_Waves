@@ -1,6 +1,6 @@
 import IconBlackShore from '@public/image/icon/Icon-black-shore.png'
 
-import { NavigationMenuType } from '@/types/navbar'
+import { NavigationMenuType, SecondNavbarId } from '@/types/navbar'
 
 import { NavbarId } from './navbar'
 
@@ -10,12 +10,14 @@ const InitialNavigationMenu: NavigationMenuType[] = [
     navIcon: IconBlackShore.src,
     name: 'Tethys System',
     value: NavbarId.TethysSystem,
+    secondNavbarId: SecondNavbarId.TethysSystem,
     unlocked: true,
     submenu: [
       {
         name: 'Tethys Upgrade',
         navIcon: IconBlackShore.src,
         value: NavbarId.TethysUpgrade,
+        secondNavbarId: SecondNavbarId.TethysUpgrade,
         unlocked: true
       }
     ],
@@ -26,8 +28,24 @@ const InitialNavigationMenu: NavigationMenuType[] = [
     navIcon: IconBlackShore.src,
     name: 'Adventure',
     value: NavbarId.Adventure,
+    secondNavbarId: SecondNavbarId.Adventure,
     unlocked: false,
-    submenu: [],
+    submenu: [
+      {
+        name: 'Battle',
+        navIcon: IconBlackShore.src,
+        value: NavbarId.Battle,
+        secondNavbarId: SecondNavbarId.Battle,
+        unlocked: true
+      },
+      {
+        name: 'Inventory',
+        navIcon: IconBlackShore.src,
+        value: NavbarId.Inventory,
+        secondNavbarId: SecondNavbarId.Inventory,
+        unlocked: true
+      }
+    ],
     allValues: [NavbarId.Adventure]
   },
   {
@@ -35,6 +53,7 @@ const InitialNavigationMenu: NavigationMenuType[] = [
     navIcon: IconBlackShore.src,
     name: 'Achievements',
     value: NavbarId.Achievements,
+    secondNavbarId: SecondNavbarId.Achievements,
     unlocked: true,
     submenu: [],
     allValues: [NavbarId.Achievements]
@@ -44,6 +63,7 @@ const InitialNavigationMenu: NavigationMenuType[] = [
     navIcon: IconBlackShore.src,
     name: 'Settings',
     value: NavbarId.Settings,
+    secondNavbarId: SecondNavbarId.Settings,
     unlocked: true,
     submenu: [],
     allValues: [NavbarId.Settings]
@@ -53,6 +73,7 @@ const InitialNavigationMenu: NavigationMenuType[] = [
     navIcon: IconBlackShore.src,
     name: 'Testing',
     value: NavbarId.Testing,
+    secondNavbarId: SecondNavbarId.Testing,
     unlocked: true,
     submenu: [],
     allValues: [NavbarId.Testing]

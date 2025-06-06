@@ -10,6 +10,7 @@ import { SaveData } from '@/types/saveData'
 import { createStrictContext } from '@/util/context/createStrictContext'
 import { decrypt, encrypt } from '@/util/function/encrypt'
 
+import { useAdventureMapContext } from './AdventureMapContext'
 import { useEnergyCondenserContext } from './EnergyCondenserContext'
 import { useEnergyContext } from './EnergyContext'
 import { useNavbarContext } from './NavbarContext'
@@ -31,6 +32,7 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
   const { energyCondensers, setEnergyCondensers } = useEnergyCondenserContext()
   const { tethysUpgrade, setTethysUpgrade } = useTethysUpgradeContext()
   const { navigationMenu, setNavigationMenu } = useNavbarContext()
+  const { huangLongMap, setHuangLongMap } = useAdventureMapContext()
 
   const [loaded, setLoaded] = useState(false)
   const [totalOfflineTime, setTotalOfflineTime] = useState(0)
@@ -42,6 +44,7 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
   const energyCondensersRef = useRef(energyCondensers)
   const tethysUpgradeRef = useRef(tethysUpgrade)
   const navigationMenuRef = useRef(navigationMenu)
+  const huangLongMapRef = useRef(huangLongMap)
 
   // Update refs
   useEffect(() => {
@@ -51,7 +54,16 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
     energyCondensersRef.current = energyCondensers
     tethysUpgradeRef.current = tethysUpgrade
     navigationMenuRef.current = navigationMenu
-  }, [energy, energyCondensers, maxEnergy, navigationMenu, tethysUpgrade, totalGeneratedEnergy])
+    huangLongMapRef.current = huangLongMap
+  }, [
+    energy,
+    energyCondensers,
+    huangLongMap,
+    maxEnergy,
+    navigationMenu,
+    tethysUpgrade,
+    totalGeneratedEnergy
+  ])
 
   const saveGame = useCallback(() => {
     try {
@@ -60,12 +72,6 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
         energy: currentEnergyRef.current.toString(),
         maxEnergy: maxEnergyRef.current.toString(),
         totalEnergy: totalEnergyRef.current.toString(),
-        navigationMenu: navigationMenuRef.current.map(menu => ({
-          unlocked: menu.unlocked,
-          submenu: menu.submenu.map(submenu => ({
-            unlocked: submenu.unlocked
-          }))
-        })),
         energyCondensers: energyCondensersRef.current.map(condenser => ({
           amount: condenser.amount.toString(),
           purchased: condenser.purchased.toString(),
@@ -75,7 +81,18 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
         })),
         tethysUpgrade: tethysUpgradeRef.current.map(upgrade => ({
           unlocked: upgrade.unlocked
-        }))
+        })),
+        navigationMenu: navigationMenuRef.current.map(menu => ({
+          unlocked: menu.unlocked,
+          submenu: menu.submenu.map(submenu => ({
+            unlocked: submenu.unlocked
+          }))
+        })),
+        maps: {
+          huangLongMap: huangLongMapRef.current.map(region => ({
+            unlocked: region.unlocked
+          }))
+        }
       }
 
       const encryptedSaveData = encrypt(JSON.stringify(saveData), process.env.SECRET_SALT || '')
@@ -192,6 +209,18 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
           })
         })
 
+        // Set Huang Long map
+        setHuangLongMap(prev => {
+          return prev.map((existingRegion, index) => {
+            const loadedRegion = parsedData.maps.huangLongMap[index]
+            if (!loadedRegion) return existingRegion
+            return {
+              ...existingRegion,
+              unlocked: loadedRegion.unlocked
+            }
+          })
+        })
+
         console.log('Game loaded:', parsedData)
 
         setLoaded(true)
@@ -202,6 +231,7 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
     [
       setEnergy,
       setEnergyCondensers,
+      setHuangLongMap,
       setMaxEnergy,
       setNavigationMenu,
       setTethysUpgrade,

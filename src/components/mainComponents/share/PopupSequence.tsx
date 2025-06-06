@@ -1,11 +1,15 @@
 'use client'
 
-import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material'
+import {
+  ArrowBack as ArrowBackwardIcon,
+  ArrowForward as ArrowForwardIcon
+} from '@mui/icons-material'
 import { Backdrop, Box, Paper, styled, Typography } from '@mui/material'
 import type React from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { PopupSequenceType } from '@/types/popupSequence'
+import { noForwardProps } from '@/util/function/style'
 
 import ColorButton from './ColorButton'
 
@@ -25,13 +29,13 @@ const StylePopup = styled(Paper)`
   position: relative;
 `
 
-const HeaderContainer = styled(Box)<ContentProps>`
+const HeaderContainer = styled(Box, noForwardProps)<ContentProps>`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 24px 24px 8px 24px;
 
-  opacity: ${props => (props.show ? 1 : 0)};
+  opacity: ${props => (props.__show ? 1 : 0)};
   transition: opacity 0.2s ease-in-out;
 `
 
@@ -46,11 +50,11 @@ const SkipButton = styled(ColorButton)`
   border: none;
 `
 
-const ContentSection = styled(Box)<ContentProps>`
-  padding: 24px;
+const ContentSection = styled(Box, noForwardProps)<ContentProps>`
+  padding: 12px 24px;
   min-height: 120px;
 
-  opacity: ${props => (props.show ? 1 : 0)};
+  opacity: ${props => (props.__show ? 1 : 0)};
   transition: opacity 0.2s ease-in-out;
 `
 
@@ -69,12 +73,12 @@ const ProgressDotContainer = styled(Box)`
   gap: 4px;
 `
 
-const ProgressDot = styled(Box)<ProgressDotProps>`
+const ProgressDot = styled(Box, noForwardProps)<ProgressDotProps>`
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background-color: ${props =>
-    props.active ? props.theme.palette.primary.main : props.theme.palette.grey[300]};
+    props.__active ? props.theme.palette.primary.main : props.theme.palette.grey[300]};
   transition: background-color 300ms ease;
 `
 
@@ -82,15 +86,17 @@ const ProgressWord = styled(Typography)`
   font-size: 12px;
 `
 
-const FooterContainer = styled(Box)<ContentProps>`
+const FooterContainer = styled(Box, noForwardProps)<ContentProps>`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 24px 16px 24px;
 
-  opacity: ${props => (props.show ? 1 : 0)};
+  opacity: ${props => (props.__show ? 1 : 0)};
   transition: opacity 0.2s ease-in-out;
 `
+
+const PrevButton = styled(ColorButton)``
 
 const NextButton = styled(ColorButton)``
 
@@ -119,6 +125,17 @@ const PopupSequence: React.FC<PopupSystemProps> = ({
       timeoutRef.current = null
     }
   }, [])
+
+  const handlePrev = useCallback(() => {
+    clearTimers()
+    setShowContent(false)
+    setTimeout(() => {
+      setCurrentIndex(prev => Math.max(prev - 1, 0))
+      setTimeout(() => {
+        setShowContent(true)
+      }, 50)
+    }, 200)
+  }, [clearTimers])
 
   const transitionToNext = useCallback(() => {
     clearTimers()
@@ -214,23 +231,33 @@ const PopupSequence: React.FC<PopupSystemProps> = ({
     <StyledBackdrop open={isOpen} onClick={handleBackdropClick}>
       <StylePopup elevation={8}>
         {/* Title Section */}
-        <HeaderContainer show={showContent}>
+        <HeaderContainer __show={showContent}>
           <PopupTitle>{currentPopup.title}</PopupTitle>
 
           <SkipButton onClick={skipToEnd}>Skip All</SkipButton>
         </HeaderContainer>
 
         {/* Content Section */}
-        <ContentSection show={showContent}>
+        <ContentSection __show={showContent}>
           <ContentContainer>{currentPopup.content}</ContentContainer>
+        </ContentSection>
 
-          {/* Progress indicator */}
+        {/* Footer with Actions */}
+        <FooterContainer __show={showContent}>
+          <PrevButton
+            onClick={handlePrev}
+            disabled={currentIndex === 0}
+            startIcon={<ArrowBackwardIcon />}
+          >
+            {'Prev'}
+          </PrevButton>
+
           {popups.length > 1 && (
             <ProgressContainer>
               {/* Progress dots */}
               <ProgressDotContainer>
                 {popups.map((_, index) => (
-                  <ProgressDot key={index} active={index === currentIndex} />
+                  <ProgressDot key={index} __active={index === currentIndex} />
                 ))}
               </ProgressDotContainer>
               <ProgressWord>
@@ -238,10 +265,7 @@ const PopupSequence: React.FC<PopupSystemProps> = ({
               </ProgressWord>
             </ProgressContainer>
           )}
-        </ContentSection>
 
-        {/* Footer with Actions */}
-        <FooterContainer show={showContent}>
           <NextButton
             onClick={closeCurrentPopup}
             endIcon={hasMorePopups ? <ArrowForwardIcon /> : undefined}
@@ -261,11 +285,11 @@ type PopupSystemProps = {
 }
 
 type ContentProps = {
-  show: boolean
+  __show: boolean
 }
 
 type ProgressDotProps = {
-  active: boolean
+  __active: boolean
 }
 
 export default PopupSequence

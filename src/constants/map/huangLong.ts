@@ -60,7 +60,7 @@ export const InitialHuangLongMap: HuangLongMapType[] = [
     color: '#06b6d4',
     description: '',
     recommandLevel: 10,
-    unlocked: true
+    unlocked: false
   },
   {
     id: HuangLongMapId.GorgesofSpirits,
@@ -107,7 +107,7 @@ export const InitialHuangLongMap: HuangLongMapType[] = [
     ],
     color: '#22c55e',
     description: '',
-    recommandLevel: 10,
+    recommandLevel: 0,
     unlocked: true
   },
   {

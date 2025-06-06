@@ -4,7 +4,9 @@ export enum NavbarId {
   Adventure = 2,
   Achievements = 3,
   Settings = 4,
-  Testing = 5
+  Testing = 5,
+  Battle = 6,
+  Inventory = 7
 }
 
 export const DefaultNavbarId = NavbarId.Testing

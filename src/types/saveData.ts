@@ -19,4 +19,9 @@ export type SaveData = {
   tethysUpgrade: {
     unlocked: boolean
   }[]
+  maps: {
+    huangLongMap: {
+      unlocked: boolean
+    }[]
+  }
 }

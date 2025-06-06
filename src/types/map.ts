@@ -1,6 +1,5 @@
 export type HuangLongMapType = {
   id: HuangLongMapId
-
   name: string
   coordinates: number[][]
   color: string

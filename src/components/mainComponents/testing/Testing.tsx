@@ -1,85 +1,50 @@
-import { Box, Button, Stack, Typography } from '@mui/material'
-import { useCallback, useState } from 'react'
+import { Box, styled } from '@mui/material'
 
-import { PopupSequenceType } from '@/types/popupSequence'
+import { useAlertPopupContext } from '@/components/context/componentContext/AlertPopupContext'
+import { usePopupContext } from '@/components/context/componentContext/PopupContext'
 
-import PopupSequence from '../share/PopupSequence'
+import ColorButton from '../share/ColorButton'
+
+const MainContainer = styled(Box)``
 
 const Testing = () => {
-  const [activePopups, setActivePopups] = useState<PopupSequenceType[] | null>(null)
+  const { createAlert } = useAlertPopupContext()
 
-  // Story example - same popups used for both modes
-  const storyPopups: PopupSequenceType[] = [
-    {
-      id: 'story-1',
-      title: 'Chapter 1: The Beginning',
-      content: (
-        <Box>
-          <Typography>
-            Once upon a time, in a land far away, there lived a young developer who discovered the
-            power of chained popups...
-          </Typography>
-          <Typography variant='body2' color='text.secondary'>
-            Click Next to continue (auto-advance disabled).
-          </Typography>
-        </Box>
-      ),
-      duration: 0
-    },
-    {
-      id: 'story-2',
-      title: 'Chapter 2: The Discovery',
-      content: (
-        <Box>
-          <Typography>
-            The developer realized they could create engaging user experiences by chaining multiple
-            popups together.
-          </Typography>
-          <Typography variant='body2' color='text.secondary'>
-            Take your time reading this.
-          </Typography>
-        </Box>
-      ),
-      duration: 0
-    },
-    {
-      id: 'story-3',
-      title: 'Chapter 3: The End',
-      content: (
-        <Box textAlign='center'>
-          <Typography paragraph>
-            And they lived happily ever after, creating amazing popup experiences! 🎉
-          </Typography>
-          <Typography variant='body2' color='text.secondary'>
-            Click close to finish.
-          </Typography>
-        </Box>
-      ),
-      duration: 0 // No duration - always requires manual close
-    }
-  ]
+  const { showPopups } = usePopupContext()
 
-  const handleStartStory = () => {
-    setActivePopups(storyPopups)
+  const handleAlertClick = () => {
+    createAlert({
+      content: 'This is a test alert',
+      variant: 'info',
+      timeout: 5000
+    })
   }
 
-  const handleComplete = useCallback(() => {
-    setActivePopups(null)
-  }, [])
+  const handlePopupClick = () => {
+    showPopups(
+      [
+        {
+          id: 'test-popup-1',
+          title: 'Test Popup 1',
+          content: 'This is a test popup',
+          duration: 0
+        },
+        {
+          id: 'test-popup-2',
+          title: 'Test Popup 2',
+          content: 'This is another test popup',
+          duration: 0
+        }
+      ],
+      { autoAdvance: true }
+    )
+  }
 
   return (
-    <Box sx={{ p: 4, maxWidth: 800, mx: 'auto' }}>
-      <Stack spacing={2} direction='row' sx={{ mb: 4 }}>
-        <Button variant='contained' onClick={handleStartStory}>
-          Start Story Sequence
-        </Button>
-      </Stack>
-
-      {/* Popup system */}
-      {activePopups && (
-        <PopupSequence popups={activePopups} autoAdvance={false} onAllComplete={handleComplete} />
-      )}
-    </Box>
+    <MainContainer>
+      <ColorButton onClick={handleAlertClick}>Show Alert</ColorButton>
+      <ColorButton onClick={handlePopupClick}>Show Popup</ColorButton>
+    </MainContainer>
   )
 }
 

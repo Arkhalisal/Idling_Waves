@@ -1,5 +1,4 @@
-import { AES } from 'crypto-js'
-import CryptoJS from 'crypto-js'
+import CryptoJS, { AES } from 'crypto-js'
 
 export const encrypt = (text: string, salt: string) => {
   return AES.encrypt(text, salt).toString()

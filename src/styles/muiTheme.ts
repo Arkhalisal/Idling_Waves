@@ -22,6 +22,7 @@ declare module '@mui/material/styles' {
 
 const theme = createTheme({
   palette: {
+    mode: 'light',
     text: {
       primary: '#000000'
     }

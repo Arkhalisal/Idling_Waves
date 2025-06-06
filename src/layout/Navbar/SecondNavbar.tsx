@@ -45,7 +45,7 @@ const SecondNavbar = ({ menu }: SecondNavbarProps) => {
         <StyledTab
           value={menu.value}
           label={<Image src={menu.navIcon} alt={menu.name} />}
-          data-tooltip-id={menu.navIcon}
+          data-tooltip-id={menu.secondNavbarId}
         />
         {R.map(item => {
           if (!item.unlocked) return
@@ -55,13 +55,13 @@ const SecondNavbar = ({ menu }: SecondNavbarProps) => {
               key={item.value}
               value={item.value}
               label={<Image src={menu.navIcon} alt={menu.name} />}
-              data-tooltip-id={item.navIcon}
+              data-tooltip-id={item.secondNavbarId}
             />
           )
         }, menu.submenu)}
       </StyledTabs>
       <StyledTooltip
-        id={menu.navIcon}
+        id={menu.secondNavbarId}
         place='top'
         content={menu.name}
         border='1px solid #1976d2'
@@ -73,7 +73,7 @@ const SecondNavbar = ({ menu }: SecondNavbarProps) => {
         return (
           <StyledTooltip
             key={item.value}
-            id={item.navIcon}
+            id={item.secondNavbarId}
             place='top'
             content={item.name}
             border='1px solid #1976d2'
