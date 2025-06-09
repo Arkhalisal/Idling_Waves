@@ -1,15 +1,9 @@
-html {
-  background-color: white;
-}
-
 body {
-  color: white;
-  font-weight: 300;
   height: 100%;
-  margin: 0;
-  overscroll-behavior: none;
-  padding: 0;
   width: 100%;
+  margin: 0;
+  padding: 0;
+  overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
 }
 

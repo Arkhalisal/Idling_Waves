@@ -7,3 +7,5 @@ export const DEFAULT_ENERGY = 100
 export const DEFAULT_MAX_ENERGY = 1000
 
 export const DEFAULT_ALT = 'Default Image'
+
+export const DEFAULT_INVENTORY_SPACE = 16

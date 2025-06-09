@@ -5,6 +5,7 @@ import { Tooltip } from 'react-tooltip'
 
 import { useEnergyContext } from '@/components/context/EnergyContext'
 import { useTethysUpgradeContext } from '@/components/context/TethysUpgradeContext'
+import { useThemeSettingContext } from '@/components/context/ThemeSettingContext'
 import { TethysUpgradeType } from '@/types/blackShore/tethysUpgrade'
 import { formatDecimal } from '@/util/function/format'
 import { noForwardProps } from '@/util/function/style'
@@ -33,14 +34,14 @@ const UpgradesContainer = styled(Box)`
   margin-top: 20px;
 `
 
-const StyledButton = styled(ColorButton, noForwardProps)<{ __unlocked: boolean }>`
+const StyledButton = styled(ColorButton, noForwardProps)<ButtonProps>`
   width: 200px;
   height: 80px;
 
   white-space: break-spaces;
 
-  background-color: ${props => props.__unlocked && '#1976d2'};
-  color: ${props => props.__unlocked && 'rgba(255, 255, 255, 0.80)'} !important;
+  background-color: ${props => props.__unlocked && props.__backgroundColor} !important;
+  color: ${props => props.__unlocked && props.__color} !important;
 `
 
 const StyledTooltip = styled(Tooltip)`
@@ -52,6 +53,8 @@ const TethysUpgrade = () => {
   const { energy, totalGeneratedEnergy } = useEnergyContext()
 
   const { tethysUpgrade, unlockTethysUpgrade } = useTethysUpgradeContext()
+
+  const { theme } = useThemeSettingContext()
 
   const renderContent = useCallback(
     (upgrade: TethysUpgradeType) => {
@@ -77,6 +80,8 @@ const TethysUpgrade = () => {
               <Box data-tooltip-id={tooLessEnergy ? 'NotUnlocked' : `Tethys-upgrade-${upgrade.id}`}>
                 <StyledButton
                   __unlocked={upgrade.unlocked}
+                  __backgroundColor={theme.palette.primary.main}
+                  __color={theme.palette.primary.contrastText}
                   disabled={energy.lt(upgrade.cost) || tooLessEnergy || upgrade.unlocked}
                   onClick={() => unlockTethysUpgrade(upgrade.id)}
                 >
@@ -99,6 +104,12 @@ const TethysUpgrade = () => {
       </UpgradesContainer>
     </MainContainer>
   )
+}
+
+type ButtonProps = {
+  __unlocked: boolean
+  __backgroundColor: string
+  __color: string
 }
 
 export default TethysUpgrade

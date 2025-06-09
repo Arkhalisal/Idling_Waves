@@ -1,5 +1,8 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
+import { initialInventoryItem } from '@/constants/adventure/inventoryItem'
+import { DEFAULT_INVENTORY_SPACE } from '@/constants/defaultSetting'
+import { InventoryItem } from '@/types/inventory'
 import { createStrictContext } from '@/util/context/createStrictContext'
 
 const [ContextProvider, useInventoryContext] =
@@ -8,12 +11,36 @@ const [ContextProvider, useInventoryContext] =
 export { useInventoryContext }
 
 const InventoryProvider = ({ children }: InventoryProviderProps) => {
-  const [inventoryItem, setInventoryItem] = useState(null)
+  const initializeInventory = useCallback((): (InventoryItem | null)[] => {
+    const inventory = new Array(DEFAULT_INVENTORY_SPACE).fill(null)
+    initialInventoryItem.forEach((item, index) => {
+      inventory[index] = item
+    })
+    return inventory
+  }, [])
 
-  return <ContextProvider value={{}}>{children}</ContextProvider>
+  const [inventoryItem, setInventoryItem] = useState<(InventoryItem | null)[]>(
+    initializeInventory()
+  )
+
+  console.log('Inventory items:', inventoryItem)
+
+  return (
+    <ContextProvider
+      value={{
+        inventoryItem,
+        setInventoryItem
+      }}
+    >
+      {children}
+    </ContextProvider>
+  )
 }
 
-type InventoryContextProps = {}
+type InventoryContextProps = {
+  inventoryItem: (InventoryItem | null)[]
+  setInventoryItem: React.Dispatch<React.SetStateAction<(InventoryItem | null)[]>>
+}
 
 type InventoryProviderProps = {
   children: React.ReactNode

@@ -46,7 +46,7 @@ const InitialNavigationMenu: NavigationMenuType[] = [
         unlocked: true
       }
     ],
-    allValues: [NavbarId.Adventure]
+    allValues: [NavbarId.Adventure, NavbarId.Battle, NavbarId.Inventory]
   },
   {
     navName: 'Achievements',

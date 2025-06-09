@@ -1,6 +1,5 @@
 'use client'
 
-import { ThemeProvider } from '@mui/material'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter'
 
 import AdventureMapProvider from '@/components/context/AdventureMapContext'
@@ -9,10 +8,11 @@ import PopupProvider from '@/components/context/componentContext/PopupContext'
 import EnergyCondenserProvider from '@/components/context/EnergyCondenserContext'
 import EnergyProvider from '@/components/context/EnergyContext'
 import GameLoopProvider from '@/components/context/GameLoopContext'
+import InventoryProvider from '@/components/context/InventoryContext'
 import NavbarProvider from '@/components/context/NavbarContext'
 import SaveLoadProvider from '@/components/context/SaveLoadContext'
 import TethysUpgradeProvider from '@/components/context/TethysUpgradeContext'
-import theme from '@/styles/muiTheme'
+import ThemeSettingProvider from '@/components/context/ThemeSettingContext'
 
 const Providers = ({ children }: ProvidersProps) => {
   return (
@@ -33,9 +33,11 @@ const Providers = ({ children }: ProvidersProps) => {
 const FunctionalProvider = ({ children }: ProvidersProps) => {
   return (
     <TethysUpgradeProvider>
-      <EnergyCondenserProvider>
-        <AdventureMapProvider>{children}</AdventureMapProvider>
-      </EnergyCondenserProvider>
+      <InventoryProvider>
+        <EnergyCondenserProvider>
+          <AdventureMapProvider>{children}</AdventureMapProvider>
+        </EnergyCondenserProvider>
+      </InventoryProvider>
     </TethysUpgradeProvider>
   )
 }
@@ -47,11 +49,11 @@ const GenericProvider = ({ children }: ProvidersProps) => {
 const BaseProvider = ({ children }: ProvidersProps) => {
   return (
     <AppRouterCacheProvider>
-      <ThemeProvider theme={theme}>
+      <ThemeSettingProvider>
         <PopupProvider>
           <AlertPopupProvider>{children}</AlertPopupProvider>
         </PopupProvider>
-      </ThemeProvider>
+      </ThemeSettingProvider>
     </AppRouterCacheProvider>
   )
 }

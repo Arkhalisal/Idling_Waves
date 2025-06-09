@@ -4,10 +4,15 @@ import { useMemo } from 'react'
 import { Tooltip } from 'react-tooltip'
 
 import { useNavbarContext } from '@/components/context/NavbarContext'
+import { useThemeSettingContext } from '@/components/context/ThemeSettingContext'
 import NextImage from '@/components/mainComponents/share/NextImage'
 import { NavigationMenuType } from '@/types/navbar'
 
-const StyledTabs = styled(Tabs)``
+const StyledTabs = styled(Tabs)`
+  .MuiTabs-indicator {
+    height: 4px;
+  }
+`
 
 const StyledTab = styled(Tab)`
   min-width: 48px;
@@ -15,25 +20,20 @@ const StyledTab = styled(Tab)`
   padding: 0;
 
   transition: all 0.3s ease;
-
-  :hover {
-    background-color: #e3f2fd;
-  }
 `
 
 const StyledTooltip = styled(Tooltip)`
   display: flex;
   justify-content: center;
   align-items: center;
-
-  background-color: lightblue;
-  color: black;
 `
 
 const Image = styled(NextImage)``
 
 const SecondNavbar = ({ menu }: SecondNavbarProps) => {
   const { currentTab, currentSecondNavbar, handleSecondNavbarChange } = useNavbarContext()
+
+  const { theme } = useThemeSettingContext()
 
   const currentMenu = useMemo(() => {
     return currentTab === menu.value ? currentSecondNavbar : false
@@ -64,7 +64,7 @@ const SecondNavbar = ({ menu }: SecondNavbarProps) => {
         id={menu.secondNavbarId}
         place='top'
         content={menu.name}
-        border='1px solid #1976d2'
+        border={`1px solid ${theme.palette.primary.main}`}
         style={{ backgroundColor: 'black' }}
       />
       {R.map(item => {
@@ -76,7 +76,7 @@ const SecondNavbar = ({ menu }: SecondNavbarProps) => {
             id={item.secondNavbarId}
             place='top'
             content={item.name}
-            border='1px solid #1976d2'
+            border={`1px solid ${theme.palette.primary.main}`}
             style={{ backgroundColor: 'black' }}
           />
         )

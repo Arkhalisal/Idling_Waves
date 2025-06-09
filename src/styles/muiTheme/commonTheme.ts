@@ -1,7 +1,3 @@
-'use client'
-
-import { createTheme } from '@mui/material/styles'
-
 declare module '@mui/material/styles' {
   interface BreakpointOverrides {
     xs: false
@@ -20,17 +16,8 @@ declare module '@mui/material/styles' {
   }
 }
 
-const theme = createTheme({
-  palette: {
-    mode: 'light',
-    text: {
-      primary: '#000000'
-    }
-  },
+export const commonTheme = {
   typography: {
-    allVariants: {
-      color: '#000000'
-    },
     fontFamily: 'var(--font-Roboto)'
   },
   breakpoints: {
@@ -45,6 +32,4 @@ const theme = createTheme({
       res3440: 3440
     }
   }
-})
-
-export default theme
+}

@@ -3,8 +3,10 @@ import { useCallback, useState } from 'react'
 import { useMapEvent } from 'react-leaflet'
 
 import { useNavbarContext } from '@/components/context/NavbarContext'
+import { useThemeSettingContext } from '@/components/context/ThemeSettingContext'
 import { MapNavbarId } from '@/constants/navbar'
 import MapNavbar from '@/layout/Navbar/thirdNavbar/mapThirdNavbar'
+import { noForwardProps } from '@/util/function/style'
 
 import SectionTitle from '../share/SectionTitle'
 import HuangLongAdventureMap from './MapComponents/HuangLongAdventureMap'
@@ -12,27 +14,28 @@ import MapScale from './MapScale'
 
 const MainContainer = styled(Box)`
   width: 100%;
-  height: 100%;
 
   display: flex;
   flex-direction: column;
   align-items: center;
 `
 
-const MapOuterContainer = styled(Box)`
-  width: 560px;
-  height: 560px;
+const MapOuterContainer = styled(Box, noForwardProps)<MapOuterContainerProps>`
+  min-width: 560px;
+  min-height: 560px;
 
   margin-top: 10px;
 
-  border: 1px solid aquamarine;
+  border: 1px solid ${props => props.__borderColor};
 
   position: relative;
 
   .leaflet-tooltip {
-    color: black;
-    background-color: white;
-    border: 1px solid #1976d2;
+    padding: 6px 12px;
+    font-size: 14px;
+    color: ${props => props.__color};
+    background-color: ${props => props.__backgroundColor};
+    border: 1px solid ${props => props.__borderColor};
   }
 
   .leaflet-interactive:focus {
@@ -42,6 +45,8 @@ const MapOuterContainer = styled(Box)`
 
 const AdventureMap = () => {
   const { currentMapNavbar } = useNavbarContext()
+
+  const { theme } = useThemeSettingContext()
 
   const [hoverCoordinates, setHoverCoordinates] = useState<Coordinates>({ x: 0, y: 0 })
 
@@ -96,13 +101,23 @@ const AdventureMap = () => {
 
       <MapNavbar />
 
-      <MapOuterContainer>
+      <MapOuterContainer
+        __color={theme.palette.primary.main}
+        __backgroundColor={theme.palette.background.default}
+        __borderColor={theme.palette.primary.main}
+      >
         <MapScale hoverCoordinates={hoverCoordinates} scaleMarks={scaleMarks} active={false}>
           {renderMap()}
         </MapScale>
       </MapOuterContainer>
     </MainContainer>
   )
+}
+
+type MapOuterContainerProps = {
+  __color: string
+  __backgroundColor: string
+  __borderColor: string
 }
 
 type Coordinates = {

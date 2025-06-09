@@ -64,6 +64,10 @@ const MapController = () => {
   return (
     <>
       {R.map(zone => {
+        if (!zone.unlocked) {
+          return null
+        }
+
         return (
           <StyledPolygon
             key={zone.id}

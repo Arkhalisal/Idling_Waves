@@ -1,7 +1,9 @@
 import { Container, styled, Tab, Tabs } from '@mui/material'
 import * as R from 'ramda'
 
+import { useThemeSettingContext } from '@/components/context/ThemeSettingContext'
 import { ThirdNavbarType } from '@/types/navbar'
+import { noForwardProps } from '@/util/function/style'
 
 const TabsContainer = styled(Container)`
   width: 100%;
@@ -10,25 +12,19 @@ const TabsContainer = styled(Container)`
   justify-content: center;
 `
 
-const StyledTabs = styled(Tabs)`
-  border: 1px solid #e0e0e0;
+const StyledTabs = styled(Tabs, noForwardProps)<BorderedTabProps>`
+  border: 1px solid ${props => props.__borderColor};
   border-radius: 4px;
-
-  .MuiTabs-scrollButtons {
-    color: black;
-    background-color: lightgray;
-  }
 `
 
-const StyledTab = styled(Tab)`
-  border-right: 1px solid #e0e0e0;
+const StyledTab = styled(Tab, noForwardProps)<BorderedTabProps>`
+  border-right: 1px solid ${props => props.__borderColor};
 
   &:last-of-type {
     border-right: none;
   }
 
   &.Mui-selected {
-    color: #1976d2; /* Main theme color for active tab text */
     font-weight: bold;
   }
 
@@ -42,6 +38,8 @@ const SharedThirdNavbar = ({ navItems, index, handleChange }: SharedThirdNavbarP
     handleChange(event, newValue)
   }
 
+  const { theme } = useThemeSettingContext()
+
   return (
     <TabsContainer>
       <StyledTabs
@@ -49,15 +47,27 @@ const SharedThirdNavbar = ({ navItems, index, handleChange }: SharedThirdNavbarP
         onChange={handleTabChange}
         variant='scrollable'
         orientation={'horizontal'}
+        __borderColor={theme.palette.primary.main}
       >
         {R.map(item => {
           if (!item.unlocked) return null
 
-          return <StyledTab key={item.value} value={item.value} label={item.name} />
+          return (
+            <StyledTab
+              key={item.value}
+              value={item.value}
+              label={item.name}
+              __borderColor={theme.palette.primary.main}
+            />
+          )
         }, navItems)}
       </StyledTabs>
     </TabsContainer>
   )
+}
+
+type BorderedTabProps = {
+  __borderColor: string
 }
 
 type SharedThirdNavbarProps = {

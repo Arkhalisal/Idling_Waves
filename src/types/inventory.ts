@@ -1,5 +1,7 @@
 import Decimal from 'break_infinity.js'
 
+import { InventoryItemId } from '@/constants/adventure/inventoryItem'
+
 export type Stats = {
   attack: Decimal
   defense: Decimal
@@ -57,12 +59,21 @@ export enum InventoryItemRarity {
   Legendary = 'Legendary'
 }
 
-export type InventoryItemType = {
-  id: string
+export enum InventoryItemType {
+  Weapon = 'Weapon',
+  Armor = 'Armor',
+  Accessory = 'Accessory',
+  Consumable = 'Consumable'
+}
+
+export type InventoryItem = {
+  itemId: InventoryItemId
   name: string
+  icon: string
+  type: InventoryItemType
   description: string
   level: Decimal
   rarity: InventoryItemRarity
-  stats: Stats
+  baseStats: Stats
   special: Special[]
 }

@@ -7,39 +7,26 @@ import { useMemo } from 'react'
 import { NavbarId } from '@/constants/navbar'
 
 import { useNavbarContext } from './context/NavbarContext'
-import { useSaveLoadContext } from './context/SaveLoadContext'
 import { NormalAchievement, Setting, TethysSystem, TethysUpgrade } from './mainComponents'
+import Inventory from './mainComponents/adventure/Inventory'
 import Testing from './mainComponents/testing/Testing'
 
 const MainContainer = styled(Box)`
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
 
   display: flex;
   justify-content: center;
 
-  margin-top: 20px;
-  padding: 0 40px;
+  padding: 20px 40px;
 
   position: relative;
-`
 
-const LoadingContainer = styled(Box)`
-  display: flex;
-  justify-content: center;
-
-  width: 100%;
-  height: 100vh;
-
-  font-size: 50px;
-  font-weight: 700;
-  color: black;
+  overflow: auto;
 `
 
 const RenderPage = () => {
   const { currentSecondNavbar } = useNavbarContext()
-
-  const { loaded } = useSaveLoadContext()
 
   const AdventureMap = useMemo(() => {
     return dynamic(() => import('./mainComponents/adventure/AdventureMap'), {
@@ -47,15 +34,6 @@ const RenderPage = () => {
       ssr: false
     })
   }, [])
-
-  // If the game is not loaded, we don't render anything
-  if (!loaded) {
-    return (
-      <MainContainer>
-        <LoadingContainer>Loading...</LoadingContainer>
-      </MainContainer>
-    )
-  }
 
   const renderComponent = () => {
     switch (currentSecondNavbar) {
@@ -66,7 +44,9 @@ const RenderPage = () => {
       case NavbarId.Adventure:
         return <AdventureMap />
       case NavbarId.Battle:
-        return
+        return <></>
+      case NavbarId.Inventory:
+        return <Inventory />
       case NavbarId.Achievements:
         return <NormalAchievement />
       case NavbarId.Settings:
