@@ -52,6 +52,7 @@ export type Special = {
 }
 
 export enum InventoryItemRarity {
+  Garbage = 'Garbage',
   Common = 'Common',
   Uncommon = 'Uncommon',
   Rare = 'Rare',
@@ -73,6 +74,7 @@ export type InventoryItem = {
   type: InventoryItemType
   description: string
   level: Decimal
+  enhancementLevel: Decimal
   rarity: InventoryItemRarity
   baseStats: Stats
   special: Special[]

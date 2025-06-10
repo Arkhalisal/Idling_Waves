@@ -2,8 +2,10 @@ import 'dotenv/config'
 
 import Decimal from 'break_infinity.js'
 import { differenceInSeconds } from 'date-fns'
+import * as R from 'ramda'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { allItems } from '@/constants/adventure/inventoryItem'
 import { initialEnergyCondensers } from '@/constants/blackShore/energyCondenser'
 import { DEFAULT_ENERGY, DEFAULT_SAVE_SPEED } from '@/constants/defaultSetting'
 import { SaveData } from '@/types/saveData'
@@ -13,6 +15,7 @@ import { decrypt, encrypt } from '@/util/function/encrypt'
 import { useAdventureMapContext } from './AdventureMapContext'
 import { useEnergyCondenserContext } from './EnergyCondenserContext'
 import { useEnergyContext } from './EnergyContext'
+import { useInventoryContext } from './InventoryContext'
 import { useNavbarContext } from './NavbarContext'
 import { useTethysUpgradeContext } from './TethysUpgradeContext'
 
@@ -33,6 +36,7 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
   const { tethysUpgrade, setTethysUpgrade } = useTethysUpgradeContext()
   const { navigationMenu, setNavigationMenu } = useNavbarContext()
   const { huangLongMap, setHuangLongMap } = useAdventureMapContext()
+  const { inventoryItem, setInventoryItem } = useInventoryContext()
 
   const [loaded, setLoaded] = useState(false)
   const [totalOfflineTime, setTotalOfflineTime] = useState(0)
@@ -45,6 +49,7 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
   const tethysUpgradeRef = useRef(tethysUpgrade)
   const navigationMenuRef = useRef(navigationMenu)
   const huangLongMapRef = useRef(huangLongMap)
+  const inventoryItemRef = useRef(inventoryItem)
 
   // Update refs
   useEffect(() => {
@@ -55,10 +60,12 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
     tethysUpgradeRef.current = tethysUpgrade
     navigationMenuRef.current = navigationMenu
     huangLongMapRef.current = huangLongMap
+    inventoryItemRef.current = inventoryItem
   }, [
     energy,
     energyCondensers,
     huangLongMap,
+    inventoryItem,
     maxEnergy,
     navigationMenu,
     tethysUpgrade,
@@ -92,7 +99,16 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
           huangLongMap: huangLongMapRef.current.map(region => ({
             unlocked: region.unlocked
           }))
-        }
+        },
+        inventoryItem: inventoryItemRef.current.map(item => {
+          if (R.isNil(item)) return null
+
+          return {
+            id: item.itemId,
+            level: item.level.toString(),
+            enhancementLevel: item.enhancementLevel.toString()
+          }
+        })
       }
 
       const encryptedSaveData = encrypt(JSON.stringify(saveData), process.env.SECRET_SALT || '')
@@ -219,6 +235,30 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
               unlocked: loadedRegion.unlocked
             }
           })
+        })
+
+        // Set inventory items
+        const loadedInventoryItems = parsedData.inventoryItem.map(item => {
+          if (R.isNil(item)) return null
+          const foundItem = allItems.find(i => i.itemId === item.id)
+          if (!foundItem) return null
+          return {
+            ...foundItem,
+            level: new Decimal(item.level),
+            enhancementLevel: new Decimal(item.enhancementLevel)
+          }
+        })
+
+        setInventoryItem(prev => {
+          const newInventory = [...prev]
+          loadedInventoryItems.forEach((item, index) => {
+            if (item) {
+              newInventory[index] = item
+            } else {
+              newInventory[index] = null
+            }
+          })
+          return newInventory
         })
 
         console.log('Game loaded:', parsedData)

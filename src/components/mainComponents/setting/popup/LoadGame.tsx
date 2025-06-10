@@ -3,19 +3,22 @@ import * as R from 'ramda'
 import { useCallback, useState } from 'react'
 
 import { useSaveLoadContext } from '@/components/context/SaveLoadContext'
+import { useThemeSettingContext } from '@/components/context/ThemeSettingContext'
+import { noForwardProps } from '@/util/function/style'
 
 import ColorButton from '../../share/ColorButton'
 import InfoPopup from '../../share/InfoPopup'
 
 const StyledButton = styled(ColorButton)``
 
-const Popup = styled(InfoPopup)`
+const Popup = styled(InfoPopup, noForwardProps)<LoadGamePopupProps>`
   /* width: 500px;
   height: 400px; */
   display: flex;
   flex-direction: column;
 
-  border: 2px solid #1976d2;
+  background-color: ${props => props.__backgroundColor};
+  border: 2px solid ${props => props.__borderColor};
   gap: 10px;
 `
 
@@ -34,6 +37,8 @@ const ConfirmButton = styled(ColorButton)`
 
 const LoadGameButton = () => {
   const { loadGame } = useSaveLoadContext()
+
+  const { theme } = useThemeSettingContext()
 
   const [openLoadGamePopup, setOpenLoadGamePopup] = useState(false)
 
@@ -61,7 +66,12 @@ const LoadGameButton = () => {
   return (
     <>
       <StyledButton onClick={handleOpenLoadGamePopup}>Load Game</StyledButton>
-      <Popup open={openLoadGamePopup} onClose={handleCloseLoadGamePopup}>
+      <Popup
+        open={openLoadGamePopup}
+        onClose={handleCloseLoadGamePopup}
+        __backgroundColor={theme.palette.background.paper}
+        __borderColor={theme.palette.primary.dark}
+      >
         <LoadText>Please Enter Your Save File Below: </LoadText>
         <StyledTextField
           id='TextField'
@@ -73,6 +83,11 @@ const LoadGameButton = () => {
       </Popup>
     </>
   )
+}
+
+type LoadGamePopupProps = {
+  __backgroundColor: string
+  __borderColor: string
 }
 
 export default LoadGameButton

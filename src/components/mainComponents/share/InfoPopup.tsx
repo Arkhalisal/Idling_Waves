@@ -25,7 +25,6 @@ type CustomModalProps = Omit<ModalProps, 'children'> & {
 }
 
 const Modal = styled(ModalBox)`
-  background: white;
   border-radius: 0px;
 
   // ? use inline-block with fit-content to support safari

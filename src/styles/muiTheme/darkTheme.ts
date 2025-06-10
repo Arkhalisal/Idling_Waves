@@ -6,7 +6,8 @@ const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     background: {
-      default: '#262525'
+      default: '#262525',
+      paper: '#323030'
     },
     text: {
       primary: '#ffffff'

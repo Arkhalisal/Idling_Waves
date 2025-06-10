@@ -24,4 +24,9 @@ export type SaveData = {
       unlocked: boolean
     }[]
   }
+  inventoryItem: ({
+    id: string
+    level: string
+    enhancementLevel: string
+  } | null)[]
 }
