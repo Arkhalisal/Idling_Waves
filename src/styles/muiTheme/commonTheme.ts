@@ -1,4 +1,16 @@
 declare module '@mui/material/styles' {
+  interface Palette {
+    custom: {
+      active: string // Define active as a string (color value)
+      background: string // Optional background color
+    }
+  }
+  interface PaletteOptions {
+    custom: {
+      active: string // Define active as optional
+      background: string // Optional background color
+    }
+  }
   interface BreakpointOverrides {
     xs: false
     sm: false

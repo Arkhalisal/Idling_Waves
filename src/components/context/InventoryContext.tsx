@@ -100,8 +100,6 @@ const InventoryProvider = ({ children }: InventoryProviderProps) => {
     [draggedIndex, draggedItem, equipmentMaxLevel, inventoryItem, setInventoryItem]
   )
 
-  console.log('Inventory items:', inventoryItem)
-
   return (
     <ContextProvider
       value={{

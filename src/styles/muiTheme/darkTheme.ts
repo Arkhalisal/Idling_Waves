@@ -14,6 +14,10 @@ const darkTheme = createTheme({
     },
     primary: {
       main: '#d43e26'
+    },
+    custom: {
+      active: '#050101',
+      background: '#262525' // Optional background color for custom elements
     }
   },
   components: {

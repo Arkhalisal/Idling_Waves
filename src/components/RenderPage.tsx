@@ -8,6 +8,7 @@ import { NavbarId } from '@/constants/navbar'
 
 import { useNavbarContext } from './context/NavbarContext'
 import { NormalAchievement, Setting, TethysSystem, TethysUpgrade } from './mainComponents'
+import Battle from './mainComponents/adventure/Battle'
 import Inventory from './mainComponents/adventure/Inventory'
 import Testing from './mainComponents/testing/Testing'
 
@@ -44,7 +45,7 @@ const RenderPage = () => {
       case NavbarId.Adventure:
         return <AdventureMap />
       case NavbarId.Battle:
-        return <></>
+        return <Battle />
       case NavbarId.Inventory:
         return <Inventory />
       case NavbarId.Achievements:
