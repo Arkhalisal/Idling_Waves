@@ -29,4 +29,19 @@ export type SaveData = {
     level: string
     enhancementLevel: string
   } | null)[]
+  weapon: {
+    id: string
+    level: string
+    enhancementLevel: string
+  } | null
+  armors: ({
+    id: string
+    level: string
+    enhancementLevel: string
+  } | null)[]
+  echoes: ({
+    id: string
+    level: string
+    enhancementLevel: string
+  } | null)[]
 }

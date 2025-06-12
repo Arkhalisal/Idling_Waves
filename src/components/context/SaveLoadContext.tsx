@@ -36,7 +36,16 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
   const { tethysUpgrade, setTethysUpgrade } = useTethysUpgradeContext()
   const { navigationMenu, setNavigationMenu } = useNavbarContext()
   const { huangLongMap, setHuangLongMap } = useAdventureMapContext()
-  const { inventoryItem, setInventoryItem } = useInventoryContext()
+  const {
+    inventoryItem,
+    setInventoryItem,
+    weapon,
+    setWeapon,
+    armors,
+    setArmors,
+    echoes,
+    setEchoes
+  } = useInventoryContext()
 
   const [loaded, setLoaded] = useState(false)
   const [totalOfflineTime, setTotalOfflineTime] = useState(0)
@@ -50,6 +59,9 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
   const navigationMenuRef = useRef(navigationMenu)
   const huangLongMapRef = useRef(huangLongMap)
   const inventoryItemRef = useRef(inventoryItem)
+  const weaponRef = useRef(weapon)
+  const armorsRef = useRef(armors)
+  const echoesRef = useRef(echoes)
 
   // Update refs
   useEffect(() => {
@@ -61,6 +73,9 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
     navigationMenuRef.current = navigationMenu
     huangLongMapRef.current = huangLongMap
     inventoryItemRef.current = inventoryItem
+    weaponRef.current = weapon
+    armorsRef.current = armors
+    echoesRef.current = echoes
   }, [
     energy,
     energyCondensers,
@@ -69,7 +84,10 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
     maxEnergy,
     navigationMenu,
     tethysUpgrade,
-    totalGeneratedEnergy
+    totalGeneratedEnergy,
+    weapon,
+    armors,
+    echoes
   ])
 
   const saveGame = useCallback(() => {
@@ -107,6 +125,31 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
             id: item.itemId,
             level: item.level.toString(),
             enhancementLevel: item.enhancementLevel.toString()
+          }
+        }),
+        weapon: weaponRef.current
+          ? {
+              id: weaponRef.current.itemId,
+              level: weaponRef.current.level.toString(),
+              enhancementLevel: weaponRef.current.enhancementLevel.toString()
+            }
+          : null,
+        armors: armorsRef.current.map(armor => {
+          if (R.isNil(armor.item)) return null
+
+          return {
+            id: armor.item.itemId,
+            level: armor.item.level.toString(),
+            enhancementLevel: armor.item.enhancementLevel.toString()
+          }
+        }),
+        echoes: echoesRef.current.map(echo => {
+          if (R.isNil(echo)) return null
+
+          return {
+            id: echo.itemId,
+            level: echo.level.toString(),
+            enhancementLevel: echo.enhancementLevel.toString()
           }
         })
       }
@@ -261,6 +304,66 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
           return newInventory
         })
 
+        // Set weapon
+        if (R.isNotNil(parsedData.weapon)) {
+          const weaponItem = allItems.find(i => i.itemId === parsedData.weapon?.id)
+          if (weaponItem) {
+            setWeapon({
+              ...weaponItem,
+              level: new Decimal(parsedData.weapon?.level),
+              enhancementLevel: new Decimal(parsedData.weapon?.enhancementLevel)
+            })
+          }
+        }
+
+        // Set armors
+        const loadedArmors = parsedData.armors.map(armor => {
+          if (R.isNil(armor)) return null
+          const foundArmor = allItems.find(i => i.itemId === armor.id)
+          if (!foundArmor) return null
+          return {
+            ...foundArmor,
+            level: new Decimal(armor.level),
+            enhancementLevel: new Decimal(armor.enhancementLevel)
+          }
+        })
+
+        setArmors(prev => {
+          const newArmors = [...prev]
+          loadedArmors.forEach((armor, index) => {
+            if (armor) {
+              newArmors[index] = { item: armor, type: newArmors[index].type }
+            } else {
+              newArmors[index] = { item: null, type: newArmors[index].type }
+            }
+          })
+          return newArmors
+        })
+
+        // Set echoes
+        const loadedEchoes = parsedData.echoes.map(echo => {
+          if (R.isNil(echo)) return null
+          const foundEcho = allItems.find(i => i.itemId === echo.id)
+          if (!foundEcho) return null
+          return {
+            ...foundEcho,
+            level: new Decimal(echo.level),
+            enhancementLevel: new Decimal(echo.enhancementLevel)
+          }
+        })
+
+        setEchoes(prev => {
+          const newEchoes = [...prev]
+          loadedEchoes.forEach((echo, index) => {
+            if (echo) {
+              newEchoes[index] = echo
+            } else {
+              newEchoes[index] = null
+            }
+          })
+          return newEchoes
+        })
+
         console.log('Game loaded:', parsedData)
 
         setLoaded(true)
@@ -269,13 +372,17 @@ const SaveLoadProvider = ({ children }: SaveLoadProviderProps) => {
       }
     },
     [
+      setArmors,
+      setEchoes,
       setEnergy,
       setEnergyCondensers,
       setHuangLongMap,
+      setInventoryItem,
       setMaxEnergy,
       setNavigationMenu,
       setTethysUpgrade,
-      setTotalGeneratedEnergy
+      setTotalGeneratedEnergy,
+      setWeapon
     ]
   )
 

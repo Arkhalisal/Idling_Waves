@@ -62,9 +62,12 @@ export enum InventoryItemRarity {
 
 export enum InventoryItemType {
   Weapon = 'Weapon',
-  Armor = 'Armor',
-  Accessory = 'Accessory',
-  Consumable = 'Consumable'
+  Helmet = 'Helmet',
+  Chest = 'Chest',
+  Leggings = 'Leggings',
+  Boots = 'Boots',
+  Echoes = 'Echoes',
+  Inventory = 'Inventory'
 }
 
 export type InventoryItem = {

@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { Tooltip } from 'react-tooltip'
 
 import NextImage from '@/components/mainComponents/share/NextImage'
-import { InventoryItem } from '@/types/inventory'
+import { InventoryItem, InventoryItemType } from '@/types/inventory'
 import { noForwardProps } from '@/util/function/style'
 
 const ItemSlotContainer = styled(Box, noForwardProps)<InventorySlotContainerProps>`
@@ -34,12 +34,14 @@ const TooltipItem = styled(Typography)``
 const ItemSlot = ({
   index,
   item,
+  slotType,
   draggedItem,
   draggedIndex,
   handleDragStart,
   handleDragOver,
   handleDragEnd,
-  handleDragDrop
+  handleDragDrop,
+  handleRightClick
 }: ItemSlotProps) => {
   const canMerge = useMemo(() => {
     if (R.isNil(draggedItem)) return false
@@ -52,17 +54,21 @@ const ItemSlot = ({
   return (
     <>
       <ItemSlotContainer
-        data-tooltip-id={`item-tooltip-${index}`}
+        data-tooltip-id={`item-tooltip-${slotType}-${index}`}
         __canMerge={canMerge}
         draggable
-        onDragStart={() => handleDragStart(item, index)}
+        onDragStart={() => handleDragStart(item, index, slotType)}
         onDragOver={handleDragOver}
         onDragEnd={() => handleDragEnd()}
-        onDrop={() => handleDragDrop(item, index)}
+        onDrop={() => handleDragDrop(item, index, slotType)}
+        onContextMenu={e => {
+          e.preventDefault()
+          handleRightClick(item, index, slotType)
+        }}
       >
         <ItemImage key={item.itemId} src={item.icon} alt={item.name} />
       </ItemSlotContainer>
-      <StyledTooltip id={`item-tooltip-${index}`}>
+      <StyledTooltip id={`item-tooltip-${slotType}-${index}`}>
         <TooltipItem>{item.name}</TooltipItem>
 
         <TooltipItem>Enhancement: {item.enhancementLevel.toFixed(0)}</TooltipItem>
@@ -74,12 +80,14 @@ const ItemSlot = ({
 type ItemSlotProps = {
   index: number
   item: InventoryItem
+  slotType: InventoryItemType
   draggedItem: InventoryItem | null
   draggedIndex: number | null
-  handleDragStart: (item: InventoryItem, index: number) => void
+  handleDragStart: (item: InventoryItem, index: number, slotType: InventoryItemType) => void
   handleDragOver: (e: React.DragEvent) => void
   handleDragEnd: () => void
-  handleDragDrop: (item: InventoryItem, index: number) => void
+  handleDragDrop: (item: InventoryItem, index: number, slotType: InventoryItemType) => void
+  handleRightClick: (item: InventoryItem | null, index: number, slotType: InventoryItemType) => void
 }
 
 type InventorySlotContainerProps = {

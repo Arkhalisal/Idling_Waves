@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useInventoryContext } from '@/components/context/InventoryContext'
 import { DEFAULT_INVENTORY_SPACE } from '@/constants/defaultSetting'
+import { InventoryItemType } from '@/types/inventory'
 import { noForwardProps } from '@/util/function/style'
 
 import ColorButton from '../../share/ColorButton'
@@ -67,7 +68,8 @@ const InventorySlot = () => {
     handleDragEnd,
     handleDragOver,
     handleDropEmpty,
-    handleDropItem
+    handleDropItem,
+    handleRightClick
   } = useInventoryContext()
 
   const [currentPage, setCurrentPage] = useState(0)
@@ -138,9 +140,11 @@ const InventorySlot = () => {
                     <EmptyItemSlot
                       key={`empty-${globalIndex}`}
                       index={globalIndex}
+                      slotType={InventoryItemType.Inventory}
                       handleDragOver={handleDragOver}
                       handleDragEnd={handleDragEnd}
                       handleDragDrop={handleDropEmpty}
+                      handleRightClick={handleRightClick}
                     />
                   )
                 }
@@ -149,6 +153,7 @@ const InventorySlot = () => {
                   <ItemSlot
                     key={`item-${globalIndex}`}
                     index={globalIndex}
+                    slotType={InventoryItemType.Inventory}
                     item={item}
                     draggedItem={draggedItem}
                     draggedIndex={draggedIndex}
@@ -156,6 +161,7 @@ const InventorySlot = () => {
                     handleDragOver={handleDragOver}
                     handleDragEnd={handleDragEnd}
                     handleDragDrop={handleDropItem}
+                    handleRightClick={handleRightClick}
                   />
                 )
               }, currentPageItems)}

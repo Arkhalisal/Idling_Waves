@@ -1,6 +1,7 @@
 import { Box, styled } from '@mui/material'
 
 import NextImage from '@/components/mainComponents/share/NextImage'
+import { InventoryItem, InventoryItemType } from '@/types/inventory'
 import { noForwardProps } from '@/util/function/style'
 
 const ItemSlotContainer = styled(Box, noForwardProps)<InventorySlotContainerProps>`
@@ -16,12 +17,24 @@ const ItemImage = styled(NextImage)`
   position: relative;
 `
 
-const EmptyItemSlot = ({ index, handleDragOver, handleDragDrop }: EmptyItemSlotProps) => {
+const EmptyItemSlot = ({
+  index,
+  slotType,
+  className,
+  handleDragOver,
+  handleDragDrop,
+  handleRightClick
+}: EmptyItemSlotProps) => {
   return (
     <ItemSlotContainer
       onDragOver={handleDragOver}
-      onDrop={() => handleDragDrop(index)}
+      onDrop={() => handleDragDrop(index, slotType)}
+      onContextMenu={e => {
+        e.preventDefault()
+        handleRightClick(null, index, slotType)
+      }}
       __canMerge={false}
+      className={className}
     >
       <ItemImage src='/image/icon/icon-blank.svg' alt='Empty Slot' />
     </ItemSlotContainer>
@@ -30,9 +43,12 @@ const EmptyItemSlot = ({ index, handleDragOver, handleDragDrop }: EmptyItemSlotP
 
 type EmptyItemSlotProps = {
   index: number
+  slotType: InventoryItemType
+  className?: string
   handleDragOver: (e: React.DragEvent) => void
   handleDragEnd: () => void
-  handleDragDrop: (index: number) => void
+  handleDragDrop: (index: number, slotType: InventoryItemType) => void
+  handleRightClick: (item: InventoryItem | null, index: number, slotType: InventoryItemType) => void
 }
 
 type InventorySlotContainerProps = {
