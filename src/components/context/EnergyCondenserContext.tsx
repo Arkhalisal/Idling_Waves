@@ -81,21 +81,22 @@ const EnergyCondenserProvider = ({ children }: EnergyProviderProps) => {
       if (totalEnergy.gt(maxEnergy)) {
         if (energy.eq(maxEnergy)) {
           // If we already have max energy, just return
-          return
+          return new Decimal(0)
         }
 
         if (energy.gt(maxEnergy)) {
           setEnergy(maxEnergy)
-          return
+          return new Decimal(0)
         }
 
         setEnergy(maxEnergy)
         setTotalGeneratedEnergy(prev => prev.plus(maxEnergy.minus(energy)))
-        return
+        return maxEnergy.minus(energy)
       }
 
       setEnergy(prev => prev.plus(energyProduction))
       setTotalGeneratedEnergy(prev => prev.plus(energyProduction))
+      return energyProduction
     },
     [
       calculateProduction,
@@ -216,7 +217,7 @@ type EnergyContextType = {
   setEnergyCondensers: React.Dispatch<React.SetStateAction<EnergyCondenser[]>>
   buyEnergyCondenser: (index: number, buyAmount: Decimal) => void
   buyMaxEnergyCondenser: () => void
-  energyCondenserLoop: (producionRate: number) => void
+  energyCondenserLoop: (producionRate: number) => Decimal
 }
 
 export default EnergyCondenserProvider

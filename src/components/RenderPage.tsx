@@ -2,10 +2,12 @@
 
 import { Box, styled } from '@mui/material'
 import dynamic from 'next/dynamic'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { NavbarId } from '@/constants/navbar'
 
+import { usePopupContext } from './context/componentContext/PopupContext'
+import { useGameLoopContext } from './context/GameLoopContext'
 import { useNavbarContext } from './context/NavbarContext'
 import { NormalAchievement, Setting, TethysSystem, TethysUpgrade } from './mainComponents'
 import Battle from './mainComponents/adventure/Battle'
@@ -28,6 +30,22 @@ const MainContainer = styled(Box)`
 
 const RenderPage = () => {
   const { currentSecondNavbar } = useNavbarContext()
+
+  const { showPopups } = usePopupContext()
+
+  const { offlineEnergy } = useGameLoopContext()
+
+  useEffect(() => {
+    if (offlineEnergy.gt(0)) {
+      showPopups([
+        {
+          id: 'offline_1',
+          title: 'Offline Gain',
+          content: `You generated ${offlineEnergy.toString()} offline energy.`
+        }
+      ])
+    }
+  }, [offlineEnergy, showPopups])
 
   const AdventureMap = useMemo(() => {
     return dynamic(() => import('./mainComponents/adventure/AdventureMap'), {

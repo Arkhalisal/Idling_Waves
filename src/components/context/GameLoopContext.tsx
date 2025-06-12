@@ -1,5 +1,6 @@
 'use client'
 
+import Decimal from 'break_infinity.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { DEFAULT_TICK_SPEED } from '@/constants/defaultSetting'
@@ -19,6 +20,8 @@ const GameLoopProvider = ({ children }: GameLoopContextProps) => {
 
   const [offlineGained, setOfflineGained] = useState(false)
 
+  const [offlineEnergy, setOfflineEnergy] = useState(new Decimal(0))
+
   const productionRate = useMemo(() => {
     return Math.floor(1000 / DEFAULT_TICK_SPEED)
   }, [])
@@ -27,7 +30,8 @@ const GameLoopProvider = ({ children }: GameLoopContextProps) => {
     (rate: number) => {
       // This function can be used to handle production logic
       // For example, you can call energyCondenserLoop here if needed
-      energyCondenserLoop(rate)
+      const energyProduced = energyCondenserLoop(rate)
+      setOfflineEnergy(prev => prev.plus(energyProduced))
     },
     [energyCondenserLoop]
   )
@@ -65,10 +69,12 @@ const GameLoopProvider = ({ children }: GameLoopContextProps) => {
     }
   }, [calculateOfflineGain, loaded, offlineGained, productionLoop, productionRate])
 
-  return <ContextProvider value={{}}>{children}</ContextProvider>
+  return <ContextProvider value={{ offlineEnergy }}>{children}</ContextProvider>
 }
 
-type GameLoopContext = object
+type GameLoopContext = {
+  offlineEnergy: Decimal
+}
 
 type GameLoopContextProps = {
   children: React.ReactNode
