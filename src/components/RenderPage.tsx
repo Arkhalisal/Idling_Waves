@@ -33,9 +33,11 @@ const RenderPage = () => {
 
   const { showPopups } = usePopupContext()
 
-  const { offlineEnergy } = useGameLoopContext()
+  const { offlineEnergy, offlineGained } = useGameLoopContext()
 
   useEffect(() => {
+    if (offlineGained) return
+
     if (offlineEnergy.gt(0)) {
       showPopups([
         {
@@ -45,7 +47,7 @@ const RenderPage = () => {
         }
       ])
     }
-  }, [offlineEnergy, showPopups])
+  }, [offlineEnergy, offlineGained, showPopups])
 
   const AdventureMap = useMemo(() => {
     return dynamic(() => import('./mainComponents/adventure/AdventureMap'), {

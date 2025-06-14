@@ -31,9 +31,12 @@ const GameLoopProvider = ({ children }: GameLoopContextProps) => {
       // This function can be used to handle production logic
       // For example, you can call energyCondenserLoop here if needed
       const energyProduced = energyCondenserLoop(rate)
-      setOfflineEnergy(prev => prev.plus(energyProduced))
+
+      if (!offlineGained) {
+        setOfflineEnergy(prev => prev.plus(energyProduced))
+      }
     },
-    [energyCondenserLoop]
+    [energyCondenserLoop, offlineGained]
   )
 
   const calculateOfflineGain = useCallback(() => {
@@ -69,10 +72,11 @@ const GameLoopProvider = ({ children }: GameLoopContextProps) => {
     }
   }, [calculateOfflineGain, loaded, offlineGained, productionLoop, productionRate])
 
-  return <ContextProvider value={{ offlineEnergy }}>{children}</ContextProvider>
+  return <ContextProvider value={{ offlineGained, offlineEnergy }}>{children}</ContextProvider>
 }
 
 type GameLoopContext = {
+  offlineGained: boolean
   offlineEnergy: Decimal
 }
 
